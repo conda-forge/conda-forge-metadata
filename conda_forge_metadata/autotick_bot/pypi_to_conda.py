@@ -1,0 +1,29 @@
+from functools import lru_cache
+import requests
+
+
+@lru_cache(maxsize=1)
+def _grayskull_pypi_mapping():
+    req = requests.get(
+        "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
+        "master/mappings/pypi/grayskull_pypi_mapping.json"
+    )
+    req.raise_for_status()
+    return req.json()
+
+
+def map_pypi_to_conda(pypi_name):
+    """Map a package's PyPi name to the most likely Conda name.
+
+    Parameters
+    ----------
+    pypi_name : str
+        The name on PyPi. This is case-sensitive.
+
+    Returns
+    -------
+    conda_name : str
+        The most likely Conda name.
+    """
+    pypi_map = _grayskull_pypi_mapping()
+    return pypi_map.get(pypi_name, {}).get("conda_name", pypi_name.lower())
