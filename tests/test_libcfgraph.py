@@ -9,6 +9,7 @@ def test_get_libcfgraph_index():
     assert len(lcfi) > 0
     assert isinstance(lcfi, list)
     assert isinstance(lcfi[0], str)
+    assert lcfi[0].startswith("artifacts/")
 
 
 # get_libcfgraph_artifact_data(channel, subdir, artifact):
