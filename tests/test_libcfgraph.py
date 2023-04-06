@@ -1,6 +1,7 @@
 from conda_forge_metadata.libcfgraph import (
     get_libcfgraph_pkgs_for_import,
     get_libcfgraph_index,
+    get_libcfgraph_artifact_data,
 )
 
 
@@ -12,7 +13,14 @@ def test_get_libcfgraph_index():
     assert lcfi[0].startswith("artifacts/")
 
 
-# get_libcfgraph_artifact_data(channel, subdir, artifact):
+def test_get_libcfgraph_artifact_data():
+    data = get_libcfgraph_artifact_data(
+        "conda-forge",
+        "noarch",
+        "flake8-6.0.0-pyhd8ed1ab_0.conda",
+    )
+    assert data["name"] == "flake8"
+    assert data["version"] == "6.0.0"
 
 
 def test_get_libcfgraph_pkgs_for_import():
