@@ -140,7 +140,7 @@ def get_libcfgraph_pkgs_for_import(import_name):
         Will return `None` if the import was not found.
     found_import_name : str
         The import name found in the libcfgraph metadata. Only
-        valid if `packages` is not None. This name will always be the
+        valid if `packages` is not None. This name will usually be the
         top-level import with all subpackages removed (e.g., foo.bar.baz
         will be returned as foo).
     """
