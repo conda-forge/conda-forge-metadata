@@ -27,22 +27,17 @@ def map_import_to_package(import_name):
     pkg_name : str
         The name of the package.
     """
-    original_import_name = import_name
-    while True:
-        supplying_pkgs = get_libcfgraph_pkgs_for_import(import_name)
-        if supplying_pkgs is None:
-            if '.' not in import_name:
-                return original_import_name
-            import_name = import_name.rsplit('.', 1)[0]
-        else:
-            break
+    supplying_pkgs, found_import_name = get_libcfgraph_pkgs_for_import(import_name)
+    if supplying_pkgs is None:
+        # this is the last import name tested and has no "." in it
+        return found_import_name
 
-    if import_name in supplying_pkgs:
+    if found_import_name in supplying_pkgs:
         # heuristic that import scipy comes from scipy
-        return import_name
+        return found_import_name
     else:
         hubs_auths = _ranked_hubs_authorities()
         return next(
             iter(k for k in hubs_auths if k in supplying_pkgs),
-            import_name
+            found_import_name
         )
