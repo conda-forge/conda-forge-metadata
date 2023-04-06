@@ -28,9 +28,6 @@ def map_import_to_package(import_name):
         The name of the package.
     """
     supplying_pkgs, found_import_name = get_libcfgraph_pkgs_for_import(import_name)
-    # this is the last import name tested and usually has no "." in it
-    # we split again to be sure
-    found_import_name = found_import_name.split(".")[0]
     if supplying_pkgs is None:
         return found_import_name
 
