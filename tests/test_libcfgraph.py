@@ -1,6 +1,16 @@
-from conda_forge_metadata.libcfgraph import get_libcfgraph_pkgs_for_import
+from conda_forge_metadata.libcfgraph import (
+    get_libcfgraph_pkgs_for_import,
+    get_libcfgraph_index,
+)
 
-# get_libcfgraph_index():
+
+def test_get_libcfgraph_index():
+    lcfi = get_libcfgraph_index()
+    assert len(lcfi) > 0
+    assert isinstance(lcfi, list)
+    assert isinstance(lcfi[0], str)
+
+
 # get_libcfgraph_artifact_data(channel, subdir, artifact):
 
 
@@ -22,4 +32,3 @@ def test_get_libcfgraph_pkgs_for_import():
     pkgs, nm = get_libcfgraph_pkgs_for_import("scipy")
     assert nm == "scipy"
     assert "scipy" in pkgs
-
