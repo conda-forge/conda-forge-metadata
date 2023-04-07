@@ -72,6 +72,8 @@ def get_libcfgraph_artifact_data(channel, subdir, artifact):
                 the recipe at info/recipe/conda_build_config.yaml
             "files": a list of files in the recipe from info/files with
                 elements ending in .pyc or .txt filtered out.
+
+        If the artifact is not indexed, it returns None.
     """
     # urls look like this:
     # https://raw.githubusercontent.com/regro/libcfgraph/master/
@@ -82,13 +84,20 @@ def get_libcfgraph_artifact_data(channel, subdir, artifact):
     else:
         nm = artifact[: -len(".conda")]
 
-    url = (
-        "https://raw.githubusercontent.com/regro/libcfgraph/master/artifacts/"
+    libcfgraph_path = (
+        "artifacts/"
         f"{nm_parts[0]}/{channel}/{subdir}/{nm}.json"
     )
-    r = requests.get(url)
-    r.raise_for_status()
-    return r.json()
+    if libcfgraph_path in get_libcfgraph_index():
+        url = (
+            "https://raw.githubusercontent.com/regro/libcfgraph/master/"
+            + libcfgraph_path
+        )
+        r = requests.get(url)
+        r.raise_for_status()
+        return r.json()
+    else:
+        return None
 
 
 @lru_cache(maxsize=1)

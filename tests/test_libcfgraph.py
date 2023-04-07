@@ -23,6 +23,15 @@ def test_get_libcfgraph_artifact_data():
     assert data["version"] == "6.0.0"
 
 
+def test_get_libcfgraph_artifact_data_none():
+    data = get_libcfgraph_artifact_data(
+        "conda-forge",
+        "noarchhh",
+        "flake8-6.0.0-pyhd8ed1ab_0.conda",
+    )
+    assert data is None
+
+
 def test_get_libcfgraph_pkgs_for_import():
     pkgs, nm = get_libcfgraph_pkgs_for_import("numpy")
     assert nm == "numpy"
