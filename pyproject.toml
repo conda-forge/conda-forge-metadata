@@ -20,9 +20,6 @@ dependencies = [
 [project.urls]
 home = "https://github.com/regro/conda-forge-metadata"
 
-[tool.setuptools.packages]
-find = {exclude = ["tests"]}
-
 [tool.setuptools_scm]
 write_to = "conda_forge_metadata/_version.py"
 write_to_template = "__version__ = '{version}'"
