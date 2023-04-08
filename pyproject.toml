@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "conda-forge-metadata"
 authors = [
-    {name = "conda-forge-tick development team", email = ""},
+    {name = "conda-forge-tick development team", email = "condaforge@gmail.com"},
 ]
 description = "programatic access to conda-forge's metadata"
 dynamic = ["version"]
