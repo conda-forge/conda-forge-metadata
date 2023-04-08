@@ -1,0 +1,31 @@
+[build-system]
+requires = [
+    "setuptools>=45",
+    "setuptools_scm>=7",
+    "tomli>=1.0.0; python_version < '3.11'",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "conda-forge-metadata"
+authors = [
+    {name = "conda-forge-tick development team", email = ""},
+]
+description = "programatic access to conda-forge's metadata"
+dynamic = ["version"]
+dependencies = [
+    "requests"
+]
+
+[project.urls]
+home = "https://github.com/regro/conda-forge-metadata"
+
+[tool.setuptools.packages]
+find = {exclude = ["tests"]}
+
+[tool.setuptools_scm]
+write_to = "conda_forge_metadata/_version.py"
+write_to_template = "__version__ = '{version}'"
+
+[tool.black]
+line-length = 79
