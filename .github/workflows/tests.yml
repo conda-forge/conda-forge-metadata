@@ -31,6 +31,7 @@ jobs:
         run: |
           mamba install --yes --file=requirements.txt
           mamba install --yes pytest flake8 flaky pip
+          python -m pip install -v --no-deps --no-build-isolation -e .
 
       - name: test versions
         shell: bash -l {0}
