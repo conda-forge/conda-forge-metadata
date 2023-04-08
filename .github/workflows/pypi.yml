@@ -40,7 +40,7 @@ jobs:
 
     - name: Test wheels
       run: |
-        cd dist && python -m pip install depfinder*.whl
+        cd dist && python -m pip install conda_forge_metadata*.whl
         python -m twine check *
       shell: bash
 
