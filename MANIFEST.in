@@ -1,0 +1,3 @@
+include conda_forge_metadata/_version.py
+include requirements.txt
+include LICENSE

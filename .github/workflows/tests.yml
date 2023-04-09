@@ -15,6 +15,8 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
@@ -30,8 +32,32 @@ jobs:
         shell: bash -l {0}
         run: |
           mamba install --yes --file=requirements.txt
-          mamba install --yes pytest flake8 flaky pip
-          pip install -e .
+          mamba install --yes --file=requirements-dev.txt
+          python -m pip install -v --no-deps --no-build-isolation -e .
+
+      - name: test versions
+        shell: bash -l {0}
+        run: |
+          pip uninstall conda-forge-metadata --yes
+          [[ $(python setup.py --version) != "0.0.0" ]] || exit 1
+
+          rm -rf dist/*
+          python setup.py sdist
+          pip install --no-deps --no-build-isolation dist/*.tar.gz
+          pushd ..
+          python -c "import conda_forge_metadata; assert conda_forge_metadata.__version__ != '0.0.0'"
+          popd
+          pip uninstall conda-forge-metadata --yes
+
+          rm -rf dist/*
+          python -m build --sdist . --outdir dist
+          pip install --no-deps --no-build-isolation dist/*.tar.gz
+          pushd ..
+          python -c "import conda_forge_metadata; assert conda_forge_metadata.__version__ != '0.0.0'"
+          popd
+          pip uninstall conda-forge-metadata --yes
+
+          python -m pip install -v --no-deps --no-build-isolation -e .
 
       - name: lint
         shell: bash -l {0}
