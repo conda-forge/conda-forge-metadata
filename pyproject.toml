@@ -14,7 +14,8 @@ authors = [
 description = "programatic access to conda-forge's metadata"
 dynamic = ["version"]
 dependencies = [
-    "requests"
+    "requests",
+    "pyyaml"
 ]
 
 [project.urls]

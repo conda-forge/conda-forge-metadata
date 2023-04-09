@@ -1,5 +1,16 @@
 from functools import lru_cache
 import requests
+import yaml
+
+
+@lru_cache(maxsize=1)
+def get_pypi_name_mapping():
+    req = requests.get(
+        "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
+        "master/mappings/pypi/name_mapping.yaml"
+    )
+    req.raise_for_status()
+    return yaml.safe_load(req.text)
 
 
 @lru_cache(maxsize=1)
