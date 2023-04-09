@@ -17,6 +17,8 @@ dependencies = [
     "requests",
     "pyyaml"
 ]
+license = {file = "LICENSE"}
+readme = "README.md"
 
 [project.urls]
 home = "https://github.com/regro/conda-forge-metadata"

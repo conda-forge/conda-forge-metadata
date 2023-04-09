@@ -31,7 +31,7 @@ jobs:
       shell: bash
 
     - name: Build binary wheel
-      run: python -m build --sdist . --outdir dist
+      run: python -m build --sdist --wheel . --outdir dist
 
     - name: CheckFiles
       run: |
@@ -40,8 +40,10 @@ jobs:
 
     - name: Test wheels
       run: |
-        # cd dist && python -m pip install conda_forge_metadata*.whl
+        pushd dist
+        python -m pip install conda_forge_metadata*.whl
         python -m twine check *
+        popd
       shell: bash
 
     - name: Publish a Python distribution to PyPI
