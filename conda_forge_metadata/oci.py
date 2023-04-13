@@ -1,5 +1,6 @@
 from functools import lru_cache
 from logging import getLogger
+from typing import Union
 
 import json
 
@@ -9,7 +10,7 @@ from ruamel import yaml
 logger = getLogger(__name__)
 
 
-def _extract_read(infotar, *names) -> str | None:
+def _extract_read(infotar, *names) -> Union[str, None]:
     names_in_tar = infotar.getnames()
     for name in names:
         if name in names_in_tar:
@@ -22,7 +23,7 @@ def get_oci_artifact_data(
     subdir: str,
     artifact: str,
     registry: str = "ghcr.io/channel-mirrors",
-) -> dict | None:
+) -> Union[dict, None]:
     """Get a blob of artifact data from the conda info directory.
 
     Note this function might need token authentication to access the registry.
