@@ -1,6 +1,7 @@
 from functools import lru_cache
+
 import requests
-import yaml
+from ruamel import yaml
 
 
 @lru_cache(maxsize=1)
@@ -10,7 +11,7 @@ def get_pypi_name_mapping():
         "master/mappings/pypi/name_mapping.yaml"
     )
     req.raise_for_status()
-    return yaml.safe_load(req.text)
+    return yaml.YAML(typ="safe").load(req.text)
 
 
 @lru_cache(maxsize=1)
