@@ -1,2 +1,3 @@
 requests
-pyyaml
+ruamel.yaml
+https://github.com/channel-mirrors/conda-oci-mirror/archive/018eebd010725eaaf891fbf6cd8438fb1e638b48.tar.gz
