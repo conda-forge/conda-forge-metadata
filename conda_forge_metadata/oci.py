@@ -81,7 +81,7 @@ def get_oci_artifact_data(
     except ValueError as exc:
         logger.debug("Failed to get info for %s", oci_name, exc_info=exc)
         return None
-    
+
     YAML = yaml.YAML(typ="safe")
 
     index = json.loads(_extract_read(infotar, "index.json"))
@@ -92,13 +92,21 @@ def get_oci_artifact_data(
         "version": index.get("version", ""),
         "index": index,
         "about": json.loads(_extract_read(infotar, "about.json")),
-        "rendered_recipe": YAML.load(_extract_read(infotar, "recipe/meta.yaml", "meta.yaml")),
-        "raw_recipe": _extract_read(infotar, "recipe/meta.yaml.template", "recipe/meta.yaml", "meta.yaml"),
-        "conda_build_config": YAML.load(_extract_read(infotar, "recipe/conda_build_config.yaml")),
-        "files": [f for f in _extract_read(infotar, "files").splitlines() if not f.lower().endswith((".pyc", ".txt"))]
+        "rendered_recipe": YAML.load(
+            _extract_read(infotar, "recipe/meta.yaml", "meta.yaml")
+        ),
+        "raw_recipe": _extract_read(
+            infotar,
+            "recipe/meta.yaml.template",
+            "recipe/meta.yaml",
+            "meta.yaml",
+        ),
+        "conda_build_config": YAML.load(
+            _extract_read(infotar, "recipe/conda_build_config.yaml")
+        ),
+        "files": [
+            f
+            for f in _extract_read(infotar, "files").splitlines()
+            if not f.lower().endswith((".pyc", ".txt"))
+        ],
     }
-
-if __name__ == "__main__":
-    import sys
-    import pprint
-    pprint.pprint(get_oci_artifact_data(*sys.argv[1:]))
