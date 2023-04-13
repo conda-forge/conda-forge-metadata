@@ -34,6 +34,8 @@ jobs:
           mamba install --yes --file=requirements.txt
           mamba install --yes --file=requirements-dev.txt
           python -m pip install -v --no-deps --no-build-isolation -e .
+          # temporary
+          python -m pip install -v https://github.com/channel-mirrors/conda-oci-mirror/archive/018eebd010725eaaf891fbf6cd8438fb1e638b48.tar.gz --no-deps --no-build-isolation
 
       - name: test versions
         shell: bash -l {0}
