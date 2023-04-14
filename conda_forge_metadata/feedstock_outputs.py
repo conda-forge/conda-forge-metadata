@@ -1,4 +1,5 @@
 from functools import lru_cache
+
 import requests
 
 
@@ -6,8 +7,8 @@ import requests
 def feedstock_outputs_config():
     ref = "main"
     req = requests.get(
-        f"https://raw.githubusercontent.com/conda-forge/feedstock-outputs/{ref}"
-        f"/config.json"
+        "https://raw.githubusercontent.com/conda-forge/feedstock-outputs/"
+        f"{ref}/config.json"
     )
     req.raise_for_status()
     return req.json()
@@ -21,13 +22,14 @@ def sharded_path(name) -> str:
     ----------
     name : str
         The name of the package.
-    
+
     Returns
     -------
     path : str
         The path to the sharded JSON file. Leading slash is omitted.
     """
-    # See https://github.com/conda-forge/feedstock-outputs/blob/c35451f2fb8b7/scripts/shard_repo.py
+    # See https://github.com/conda-forge/feedstock-outputs/
+    #     blob/c35451f2fb8b7/scripts/shard_repo.py
     # for sharding details.
     config = feedstock_outputs_config()
     outputs_path = config["outputs_path"]
@@ -38,7 +40,7 @@ def sharded_path(name) -> str:
     chars = [c for c in name if c.isalnum()][:shard_level]
     while len(chars) < shard_level:
         chars.append(shard_fill)
-    
+
     return f"{outputs_path}/{'/'.join(chars)}/{name}.json"
 
 
@@ -74,9 +76,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print(
-            "Usage: python -m conda_forge_metadata.feedstock_outputs <package>"
-        )
+        print("Usage: python -m conda_forge_metadata.feedstock_outputs <package>")
         sys.exit(1)
 
     for name in sys.argv[1:]:
