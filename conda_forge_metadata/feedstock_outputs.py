@@ -14,7 +14,7 @@ def _feedstock_outputs_config():
 
 
 @lru_cache(maxsize=1024)
-def package_to_feedstock(name):
+def package_to_feedstock(name, **request_kwargs):
     """Map a package name to the feedstock name.
 
     Parameters
@@ -26,6 +26,8 @@ def package_to_feedstock(name):
     -------
     feedstock : str
         The name of the feedstock, without the ``-feedstock`` suffix.
+    request_kwargs : dict
+        Keyword arguments to pass to ``requests.get``.
     """
     assert name, "name must not be empty"
 
@@ -44,7 +46,8 @@ def package_to_feedstock(name):
     ref = "main"
     req = requests.get(
         f"https://raw.githubusercontent.com/conda-forge/feedstock-outputs/{ref}/{outputs_path}"
-        f"/{'/'.join(chars)}/{name}.json"
+        f"/{'/'.join(chars)}/{name}.json",
+        **request_kwargs,
     )
     req.raise_for_status()
     return req.json()["feedstocks"]
