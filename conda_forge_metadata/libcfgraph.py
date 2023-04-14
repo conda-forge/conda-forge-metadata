@@ -85,9 +85,7 @@ def get_libcfgraph_artifact_data(channel, subdir, artifact):
     else:
         nm = artifact[: -len(".conda")]
 
-    libcfgraph_path = (
-        "artifacts/" f"{nm_parts[0]}/{channel}/{subdir}/{nm}.json"
-    )
+    libcfgraph_path = "artifacts/" f"{nm_parts[0]}/{channel}/{subdir}/{nm}.json"
     if libcfgraph_path in get_libcfgraph_index():
         url = (
             "https://raw.githubusercontent.com/regro/libcfgraph/master/"

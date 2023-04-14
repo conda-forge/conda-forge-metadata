@@ -28,9 +28,7 @@ def map_import_to_package(import_name):
     pkg_name : str
         The name of the package.
     """
-    supplying_pkgs, found_import_name = get_libcfgraph_pkgs_for_import(
-        import_name
-    )
+    supplying_pkgs, found_import_name = get_libcfgraph_pkgs_for_import(import_name)
     if supplying_pkgs is None:
         return found_import_name
 
