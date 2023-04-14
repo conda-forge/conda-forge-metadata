@@ -28,4 +28,7 @@ write_to = "conda_forge_metadata/_version.py"
 write_to_template = "__version__ = '{version}'\n"
 
 [tool.black]
-line-length = 79
+line-length = 88
+
+[tool.isort]
+profile = "black"
