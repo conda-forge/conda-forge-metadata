@@ -13,6 +13,35 @@ def feedstock_outputs_config():
     return req.json()
 
 
+def sharded_path(name) -> str:
+    """
+    Get the path to the sharded JSON path in the feedstock_outputs repository.
+
+    Parameters
+    ----------
+    name : str
+        The name of the package.
+    
+    Returns
+    -------
+    path : str
+        The path to the sharded JSON file. Leading slash is omitted.
+    """
+    # See https://github.com/conda-forge/feedstock-outputs/blob/c35451f2fb8b7/scripts/shard_repo.py
+    # for sharding details.
+    config = feedstock_outputs_config()
+    outputs_path = config["outputs_path"]
+    shard_level = config["shard_level"]
+    shard_fill = config["shard_fill"]
+
+    name = name.lower()
+    chars = [c for c in name if c.isalnum()][:shard_level]
+    while len(chars) < shard_level:
+        chars.append(shard_fill)
+    
+    return f"{outputs_path}/{'/'.join(chars)}/{name}.json"
+
+
 @lru_cache(maxsize=1024)
 def package_to_feedstock(name, **request_kwargs):
     """Map a package name to the feedstock name.
@@ -31,22 +60,10 @@ def package_to_feedstock(name, **request_kwargs):
     """
     assert name, "name must not be empty"
 
-    # See https://github.com/conda-forge/feedstock-outputs/blob/c35451f2fb8b7/scripts/shard_repo.py
-    # for sharding details.
-    config = feedstock_outputs_config()
-    outputs_path = config["outputs_path"]
-    shard_level = config["shard_level"]
-    shard_fill = config["shard_fill"]
-
-    name = name.lower()
-    chars = [c for c in name if c.isalnum()][:shard_level]
-    while len(chars) < shard_level:
-        chars.append(shard_fill)
-
     ref = "main"
+    path = sharded_path(name)
     req = requests.get(
-        f"https://raw.githubusercontent.com/conda-forge/feedstock-outputs/{ref}/{outputs_path}"
-        f"/{'/'.join(chars)}/{name}.json",
+        f"https://raw.githubusercontent.com/conda-forge/feedstock-outputs/{ref}/{path}",
         **request_kwargs,
     )
     req.raise_for_status()
