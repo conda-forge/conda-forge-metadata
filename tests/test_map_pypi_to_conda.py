@@ -1,5 +1,6 @@
 from conda_forge_metadata.autotick_bot import (
-    map_pypi_to_conda, get_pypi_name_mapping
+    get_pypi_name_mapping,
+    map_pypi_to_conda,
 )
 
 
