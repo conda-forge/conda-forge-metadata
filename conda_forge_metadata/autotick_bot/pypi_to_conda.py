@@ -1,4 +1,5 @@
 from functools import lru_cache
+
 import requests
 import yaml
 

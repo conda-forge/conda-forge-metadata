@@ -1,6 +1,4 @@
-from conda_forge_metadata.autotick_bot import (
-    map_pypi_to_conda, get_pypi_name_mapping
-)
+from conda_forge_metadata.autotick_bot import get_pypi_name_mapping, map_pypi_to_conda
 
 
 def test_map_pypi_to_conda():
