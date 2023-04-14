@@ -59,11 +59,6 @@ jobs:
 
           python -m pip install -v --no-deps --no-build-isolation -e .
 
-      - name: lint
-        shell: bash -l {0}
-        run: |
-          flake8 conda_forge_metadata
-
       - name: test
         shell: bash -l {0}
         run: |
