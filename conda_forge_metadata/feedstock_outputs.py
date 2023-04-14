@@ -1,6 +1,7 @@
 from functools import lru_cache
 import requests
 
+
 @lru_cache(maxsize=1)
 def _feedstock_outputs_config():
     ref = "main"
@@ -8,24 +9,19 @@ def _feedstock_outputs_config():
         f"https://raw.githubusercontent.com/conda-forge/feedstock-outputs/{ref}"
         f"/config.json"
     )
-    if req.ok:
-        return req.json()
-    return {
-        "outputs_path": "outputs",
-        "shard_level": 3,
-        "shard_fill": "z"
-    }
+    req.raise_for_status()
+    return req.json()
 
 
 @lru_cache(maxsize=1024)
 def package_to_feedstock(name):
     """Map a package name to the feedstock name.
-    
+
     Parameters
     ----------
     package : str
         The name of the package.
-    
+
     Returns
     -------
     feedstock : str
@@ -39,7 +35,7 @@ def package_to_feedstock(name):
     outputs_path = config["outputs_path"]
     shard_level = config["shard_level"]
     shard_fill = config["shard_fill"]
-    shard_level = config["shard_level"]
+
     name = name.lower()
     chars = [c for c in name if c.isalnum()][:shard_level]
     while len(chars) < shard_level:
