@@ -44,7 +44,7 @@ def sharded_path(name) -> str:
 
 @lru_cache(maxsize=1024)
 def package_to_feedstock(name, **request_kwargs):
-    """Map a package name to the feedstock name.
+    """Map a package name to the feedstock name(s).
 
     Parameters
     ----------
