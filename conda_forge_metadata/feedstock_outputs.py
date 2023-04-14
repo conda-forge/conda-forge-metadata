@@ -3,7 +3,7 @@ import requests
 
 
 @lru_cache(maxsize=1)
-def _feedstock_outputs_config():
+def feedstock_outputs_config():
     ref = "main"
     req = requests.get(
         f"https://raw.githubusercontent.com/conda-forge/feedstock-outputs/{ref}"
@@ -33,7 +33,7 @@ def package_to_feedstock(name, **request_kwargs):
 
     # See https://github.com/conda-forge/feedstock-outputs/blob/c35451f2fb8b7/scripts/shard_repo.py
     # for sharding details.
-    config = _feedstock_outputs_config()
+    config = feedstock_outputs_config()
     outputs_path = config["outputs_path"]
     shard_level = config["shard_level"]
     shard_fill = config["shard_fill"]
