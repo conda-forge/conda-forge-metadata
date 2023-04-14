@@ -1,6 +1,7 @@
 from functools import lru_cache
 import requests
 
+
 @lru_cache(maxsize=1024)
 def package_to_feedstock(name):
     """Map a package name to the feedstock name.
@@ -36,7 +37,9 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage: python -m conda_forge_metadata.feedstock_outputs <package>")
+        print(
+            "Usage: python -m conda_forge_metadata.feedstock_outputs <package>"
+        )
         sys.exit(1)
 
     for name in sys.argv[1:]:
