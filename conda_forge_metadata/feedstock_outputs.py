@@ -5,10 +5,12 @@ import requests
 @lru_cache(maxsize=1024)
 def package_to_feedstock(name):
     """Map a package name to the feedstock name.
+    
     Parameters
     ----------
     package : str
         The name of the package.
+    
     Returns
     -------
     feedstock : str
