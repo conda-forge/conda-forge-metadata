@@ -1,6 +1,7 @@
 import json
 from functools import lru_cache
 from logging import getLogger
+from typing import Union
 
 from conda_oci_mirror.repo import PackageRepo
 from ruamel import yaml
@@ -8,7 +9,7 @@ from ruamel import yaml
 logger = getLogger(__name__)
 
 
-def _extract_read(infotar, *names) -> str | None:
+def _extract_read(infotar, *names) -> Union[str, None]:
     names_in_tar = infotar.getnames()
     for name in names:
         if name in names_in_tar:

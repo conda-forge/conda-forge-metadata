@@ -46,7 +46,7 @@ repos:
   rev: v2.32.0
   hooks:
   - id: pyupgrade
-    args: ["--py310-plus", "--keep-runtime-typing"]
+    args: ["--py38-plus", "--keep-runtime-typing"]
 
 # Organize imports.
 - repo: https://github.com/pre-commit/mirrors-isort
