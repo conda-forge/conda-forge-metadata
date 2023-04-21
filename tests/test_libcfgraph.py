@@ -1,7 +1,7 @@
 from conda_forge_metadata.libcfgraph import (
-    get_libcfgraph_pkgs_for_import,
-    get_libcfgraph_index,
     get_libcfgraph_artifact_data,
+    get_libcfgraph_index,
+    get_libcfgraph_pkgs_for_import,
 )
 
 

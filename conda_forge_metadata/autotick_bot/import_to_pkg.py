@@ -1,4 +1,5 @@
 from functools import lru_cache
+
 import requests
 
 from conda_forge_metadata.libcfgraph import get_libcfgraph_pkgs_for_import
@@ -7,8 +8,8 @@ from conda_forge_metadata.libcfgraph import get_libcfgraph_pkgs_for_import
 @lru_cache(maxsize=1)
 def _ranked_hubs_authorities():
     req = requests.get(
-        'https://raw.githubusercontent.com/regro/cf-graph-countyfair/'
-        'master/ranked_hubs_authorities.json'
+        "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
+        "master/ranked_hubs_authorities.json"
     )
     req.raise_for_status()
     return req.json()
@@ -38,5 +39,5 @@ def map_import_to_package(import_name):
         hubs_auths = _ranked_hubs_authorities()
         return next(
             iter(k for k in hubs_auths if k in supplying_pkgs),
-            found_import_name
+            found_import_name,
         )
