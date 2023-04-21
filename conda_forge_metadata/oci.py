@@ -22,7 +22,7 @@ def get_oci_artifact_data(
     subdir: str,
     artifact: str,
     registry: str = "ghcr.io/channel-mirrors",
-) -> dict | None:
+) -> Union[dict, None]:
     """Get a blob of artifact data from the conda info directory.
 
     Note this function might need token authentication to access the registry.
