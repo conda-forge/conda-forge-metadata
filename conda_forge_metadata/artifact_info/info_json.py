@@ -1,7 +1,7 @@
 from conda_forge_metadata.libcfgraph import get_libcfgraph_artifact_data
 
 
-def get_artifact_info_as_json(channel, subdir, artifact):
+def get_artifact_info_as_json(channel, subdir, artifact, backend="libcfgraph"):
     """Get a blob of artifact data from the conda info directory.
 
     Parameters
@@ -35,4 +35,11 @@ def get_artifact_info_as_json(channel, subdir, artifact):
             "files": a list of files in the recipe from info/files with
                 elements ending in .pyc or .txt filtered out.
     """
-    return get_libcfgraph_artifact_data(channel, subdir, artifact)
+    if backend == "libcfgraph":
+        return get_libcfgraph_artifact_data(channel, subdir, artifact)
+    elif backend == "oci":
+        from conda_forge_metadata.oci import get_oci_artifact_data
+
+        return get_oci_artifact_data(channel, subdir, artifact)
+    else:
+        raise ValueError(f"Unknown backend {backend!r}")
