@@ -15,11 +15,15 @@ description = "programatic access to conda-forge's metadata"
 dynamic = ["version"]
 dependencies = [
     "requests",
-    "ruamel.yaml",
-    "conda-oci-mirror@https://github.com/channel-mirrors/conda-oci-mirror/archive/018eebd010725eaaf891fbf6cd8438fb1e638b48.tar.gz"
+    "ruamel.yaml"
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
+
+[project.optional-dependencies]
+oci = [
+  "conda-oci-mirror"
+]
 
 [project.urls]
 home = "https://github.com/regro/conda-forge-metadata"

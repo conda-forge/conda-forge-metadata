@@ -39,6 +39,7 @@ def get_artifact_info_as_json(channel, subdir, artifact, backend="libcfgraph"):
         return get_libcfgraph_artifact_data(channel, subdir, artifact)
     elif backend == "oci":
         from conda_forge_metadata.oci import get_oci_artifact_data
+
         return get_oci_artifact_data(channel, subdir, artifact)
     else:
         raise ValueError(f"Unknown backend {backend!r}")
