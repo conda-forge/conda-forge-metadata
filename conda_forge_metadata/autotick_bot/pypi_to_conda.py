@@ -15,7 +15,7 @@ def get_pypi_name_mapping():
 
 
 @lru_cache(maxsize=1)
-def _grayskull_pypi_mapping():
+def get_grayskull_pypi_mapping():
     req = requests.get(
         "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
         "master/mappings/pypi/grayskull_pypi_mapping.json"
@@ -37,5 +37,5 @@ def map_pypi_to_conda(pypi_name):
     conda_name : str
         The most likely Conda name.
     """
-    pypi_map = _grayskull_pypi_mapping()
+    pypi_map = get_grayskull_pypi_mapping()
     return pypi_map.get(pypi_name, {}).get("conda_name", pypi_name.lower())
