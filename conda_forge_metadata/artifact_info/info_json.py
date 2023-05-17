@@ -5,7 +5,7 @@ from conda_forge_metadata.types import ArtifactData
 
 
 def get_artifact_info_as_json(
-    channel, subdir, artifact, backend="libcfgraph"
+    channel: str, subdir: str, artifact: str, backend: str = "libcfgraph"
 ) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
 

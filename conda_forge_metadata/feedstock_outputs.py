@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import TypedDict
+from typing import Any, TypedDict
 
 import requests
 
@@ -54,20 +54,20 @@ def sharded_path(name: CondaPackageName) -> str:
 
 
 @lru_cache(maxsize=1024)
-def package_to_feedstock(name: CondaPackageName, **request_kwargs):
+def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> str:
     """Map a package name to the feedstock name(s).
 
     Parameters
     ----------
     package : str
         The name of the package.
+    request_kwargs : dict
+        Keyword arguments to pass to ``requests.get``.
 
     Returns
     -------
     feedstock : str
         The name of the feedstock, without the ``-feedstock`` suffix.
-    request_kwargs : dict
-        Keyword arguments to pass to ``requests.get``.
     """
     assert name, "name must not be empty"
 

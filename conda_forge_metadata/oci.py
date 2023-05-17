@@ -1,4 +1,5 @@
 import json
+import tarfile
 from functools import lru_cache
 from logging import getLogger
 
@@ -10,11 +11,13 @@ from conda_forge_metadata.types import ArtifactData
 logger = getLogger(__name__)
 
 
-def _extract_read(infotar, *names) -> str:
+def _extract_read(infotar: tarfile.TarFile, *names: str) -> str:
     names_in_tar = infotar.getnames()
     for name in names:
         if name in names_in_tar:
-            return infotar.extractfile(name).read().decode()
+            file = infotar.extractfile(name)
+            if file is not None:
+                return file.read().decode()
     else:
         raise ValueError(f"{names} not in {names_in_tar}")
 

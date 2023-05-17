@@ -116,7 +116,7 @@ def _import_to_pkg_maps_num_letters() -> int:
 
 
 @lru_cache(maxsize=128)
-def _import_to_pkg_maps_cache(import_first_letters) -> dict[str, set[str]]:
+def _import_to_pkg_maps_cache(import_first_letters: str) -> dict[str, set[str]]:
     req = requests.get(
         f"https://raw.githubusercontent.com/regro/libcfgraph"
         f"/master/import_to_pkg_maps/{import_first_letters.lower()}.json"
@@ -125,14 +125,14 @@ def _import_to_pkg_maps_cache(import_first_letters) -> dict[str, set[str]]:
     return {k: set(v["elements"]) for k, v in req.json().items()}
 
 
-def _get_libcfgraph_pkgs_for_import(import_name: str):
+def _get_libcfgraph_pkgs_for_import(import_name: str) -> set[str] | None:
     num_letters = _import_to_pkg_maps_num_letters()
     fllt = import_name[: min(len(import_name), num_letters)]
     import_to_pkg_map = _import_to_pkg_maps_cache(fllt)
     return import_to_pkg_map.get(import_name, None)
 
 
-def get_libcfgraph_pkgs_for_import(import_name: str):
+def get_libcfgraph_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
     """Get a list of possible packages that supply a given import.
 
     **This data is approximate and may be wrong.**
