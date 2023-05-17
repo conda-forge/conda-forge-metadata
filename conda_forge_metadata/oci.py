@@ -1,7 +1,6 @@
 import json
 from functools import lru_cache
 from logging import getLogger
-from typing import Optional
 
 from conda_oci_mirror.repo import PackageRepo
 from ruamel import yaml
@@ -26,7 +25,7 @@ def get_oci_artifact_data(
     subdir: str,
     artifact: str,
     registry: str = "ghcr.io/channel-mirrors",
-) -> Optional[ArtifactData]:
+) -> "ArtifactData | None":
     """Get a blob of artifact data from the conda info directory.
 
     Note this function might need token authentication to access the registry.

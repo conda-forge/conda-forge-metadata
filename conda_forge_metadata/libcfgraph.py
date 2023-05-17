@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Optional
 
 import requests
 
@@ -48,7 +47,7 @@ def get_libcfgraph_index() -> list[str]:
 @lru_cache(maxsize=1024)
 def get_libcfgraph_artifact_data(
     channel: str, subdir: str, artifact: str
-) -> Optional[ArtifactData]:
+) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
 
     Parameters

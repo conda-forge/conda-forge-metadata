@@ -1,6 +1,6 @@
 """Commonly used type annotions for conda-forge-metadata."""
 
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 from typing_extensions import TypeAlias
 
@@ -33,10 +33,10 @@ class ArtifactData(TypedDict, total=False):
     rendered_recipe: dict
     # the template recipe as a string from info/recipe/meta.yaml.template - could be
     # the rendered recipe as a string if no template was found
-    raw_recipe: Optional[str]
+    raw_recipe: "str | None"
     # the conda_build_config.yaml used for building the recipe at
     # info/recipe/conda_build_config.yaml
     conda_build_config: dict
     # a list of files in the recipe from info/files with elements ending in .pyc or
     # .txt filtered out.
-    files: list[str]
+    files: "list[str]"
