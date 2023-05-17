@@ -15,7 +15,7 @@ class NameMappingEntry(TypedDict):
     mapping_source: str
 
 
-class ArtifactData(TypedDict, total=False):
+class ArtifactData(TypedDict):
     """The data for a single artifact."""
 
     # the metadata version format
