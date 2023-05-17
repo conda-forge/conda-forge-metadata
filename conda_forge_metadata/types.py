@@ -1,6 +1,8 @@
 """Commonly used type annotions for conda-forge-metadata."""
 
-from typing import Optional, TypeAlias, TypedDict
+from typing import Optional, TypedDict
+
+from typing_extensions import TypeAlias
 
 CondaPackageName: TypeAlias = str
 PypiPackageName: TypeAlias = str
