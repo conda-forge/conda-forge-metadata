@@ -6,7 +6,7 @@ from conda_forge_metadata.libcfgraph import get_libcfgraph_pkgs_for_import
 
 
 @lru_cache(maxsize=1)
-def _ranked_hubs_authorities():
+def _ranked_hubs_authorities() -> list[str]:
     req = requests.get(
         "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
         "master/ranked_hubs_authorities.json"
@@ -15,7 +15,7 @@ def _ranked_hubs_authorities():
     return req.json()
 
 
-def map_import_to_package(import_name):
+def map_import_to_package(import_name: str) -> str:
     """Map an import name to the most likely package that has it.
 
     Parameters

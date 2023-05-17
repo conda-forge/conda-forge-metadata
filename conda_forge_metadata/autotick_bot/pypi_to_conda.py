@@ -1,11 +1,17 @@
+from __future__ import annotations
+
+import typing
 from functools import lru_cache
 
 import requests
 from ruamel import yaml
 
+if typing.TYPE_CHECKING:
+    from ..types import CondaPackageName, NameMappingEntry, PypiPackageName
+
 
 @lru_cache(maxsize=1)
-def get_pypi_name_mapping():
+def get_pypi_name_mapping() -> list[NameMappingEntry]:
     req = requests.get(
         "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
         "master/mappings/pypi/name_mapping.yaml"
@@ -15,7 +21,7 @@ def get_pypi_name_mapping():
 
 
 @lru_cache(maxsize=1)
-def get_grayskull_pypi_mapping():
+def get_grayskull_pypi_mapping() -> dict[PypiPackageName, NameMappingEntry]:
     req = requests.get(
         "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
         "master/mappings/pypi/grayskull_pypi_mapping.json"
@@ -24,7 +30,7 @@ def get_grayskull_pypi_mapping():
     return req.json()
 
 
-def map_pypi_to_conda(pypi_name):
+def map_pypi_to_conda(pypi_name: PypiPackageName) -> CondaPackageName:
     """Map a package's PyPi name to the most likely Conda name.
 
     Parameters

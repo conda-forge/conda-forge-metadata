@@ -1,7 +1,12 @@
+from typing import Optional
+
 from conda_forge_metadata.libcfgraph import get_libcfgraph_artifact_data
+from conda_forge_metadata.types import ArtifactData
 
 
-def get_artifact_info_as_json(channel, subdir, artifact, backend="libcfgraph"):
+def get_artifact_info_as_json(
+    channel, subdir, artifact, backend="libcfgraph"
+) -> Optional[ArtifactData]:
     """Get a blob of artifact data from the conda info directory.
 
     Parameters
