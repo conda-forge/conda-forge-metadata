@@ -11,6 +11,7 @@ def test_info_json(backend):
         "21cmfast-3.0.2-py36h13dd421_0.tar.bz2",
         backend=backend,
     )
+    assert info is not None
     assert info["metadata_version"] == 1
     assert info["name"] == "21cmfast"
     assert info["version"] == "3.0.2"
@@ -25,6 +26,7 @@ def test_info_json(backend):
         info["rendered_recipe"]["source"]["sha256"]
         == "6e88960d134e98e4719343d853c63fc3c691438b57b2863f7834f07fae9eab4f"
     )
+    assert info["raw_recipe"] is not None
     assert info["raw_recipe"].startswith('{% set name = "21cmFAST" %}')
     assert info["conda_build_config"]["CI"] == "azure"
     assert "bin/21cmfast" in info["files"]

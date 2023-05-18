@@ -1,10 +1,19 @@
 from functools import lru_cache
+from typing import Any, TypedDict
 
 import requests
 
+from conda_forge_metadata.types import CondaPackageName
+
+
+class FeedstockOutputsConfig(TypedDict):
+    outputs_path: str
+    shard_level: int
+    shard_fill: str
+
 
 @lru_cache(maxsize=1)
-def feedstock_outputs_config():
+def feedstock_outputs_config() -> FeedstockOutputsConfig:
     ref = "main"
     req = requests.get(
         "https://raw.githubusercontent.com/conda-forge/feedstock-outputs/"
@@ -14,7 +23,7 @@ def feedstock_outputs_config():
     return req.json()
 
 
-def sharded_path(name) -> str:
+def sharded_path(name: CondaPackageName) -> str:
     """
     Get the path to the sharded JSON path in the feedstock_outputs repository.
 
@@ -45,20 +54,20 @@ def sharded_path(name) -> str:
 
 
 @lru_cache(maxsize=1024)
-def package_to_feedstock(name, **request_kwargs):
+def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> str:
     """Map a package name to the feedstock name(s).
 
     Parameters
     ----------
     package : str
         The name of the package.
+    request_kwargs : dict
+        Keyword arguments to pass to ``requests.get``.
 
     Returns
     -------
     feedstock : str
         The name of the feedstock, without the ``-feedstock`` suffix.
-    request_kwargs : dict
-        Keyword arguments to pass to ``requests.get``.
     """
     assert name, "name must not be empty"
 

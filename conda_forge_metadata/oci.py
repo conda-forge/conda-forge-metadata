@@ -1,19 +1,25 @@
 import json
+import tarfile
 from functools import lru_cache
 from logging import getLogger
-from typing import Union
 
 from conda_oci_mirror.repo import PackageRepo
 from ruamel import yaml
 
+from conda_forge_metadata.types import ArtifactData
+
 logger = getLogger(__name__)
 
 
-def _extract_read(infotar, *names) -> Union[str, None]:
+def _extract_read(infotar: tarfile.TarFile, *names: str) -> str:
     names_in_tar = infotar.getnames()
     for name in names:
         if name in names_in_tar:
-            return infotar.extractfile(name).read().decode()
+            file = infotar.extractfile(name)
+            if file is not None:
+                return file.read().decode()
+    else:
+        raise ValueError(f"{names} not in {names_in_tar}")
 
 
 @lru_cache(maxsize=1024)
@@ -22,7 +28,7 @@ def get_oci_artifact_data(
     subdir: str,
     artifact: str,
     registry: str = "ghcr.io/channel-mirrors",
-) -> Union[dict, None]:
+) -> "ArtifactData | None":
     """Get a blob of artifact data from the conda info directory.
 
     Note this function might need token authentication to access the registry.
@@ -84,7 +90,7 @@ def get_oci_artifact_data(
 
     YAML = yaml.YAML(typ="safe")
 
-    index = json.loads(_extract_read(infotar, "index.json"))
+    index: dict = json.loads(_extract_read(infotar, "index.json"))
     return {
         # https://github.com/regro/libcflib/blob/062858e90af2795d2eb098034728cace574a51b8/libcflib/harvester.py#L14
         "metadata_version": 1,
