@@ -4,7 +4,7 @@ from conda_forge_metadata.artifact_info import info_json
 
 
 @pytest.mark.parametrize("backend", ["libcfgraph", "oci"])
-def test_info_json(backend):
+def test_info_json(backend: str):
     info = info_json.get_artifact_info_as_json(
         "conda-forge",
         "osx-64",
@@ -30,3 +30,15 @@ def test_info_json(backend):
     assert info["raw_recipe"].startswith('{% set name = "21cmFAST" %}')
     assert info["conda_build_config"]["CI"] == "azure"
     assert "bin/21cmfast" in info["files"]
+
+
+@pytest.mark.parametrize("backend", ["libcfgraph", "oci"])
+def test_missing_conda_build(backend: str):
+    info = info_json.get_artifact_info_as_json(
+        "conda-forge",
+        "linux-64",
+        "jinja2-2.10-py36_0.tar.bz2",
+        backend=backend,
+    )
+    assert info is not None
+    assert info["conda_build_config"] == {}
