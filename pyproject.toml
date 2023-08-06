@@ -15,7 +15,8 @@ description = "programatic access to conda-forge's metadata"
 dynamic = ["version"]
 dependencies = [
     "requests",
-    "ruamel.yaml"
+    "ruamel.yaml",
+    "typing-extensions"
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
