@@ -12,7 +12,7 @@ from conda_forge_metadata.types import ArtifactData
 logger = getLogger(__name__)
 
 
-def _extract_read(infotar: tarfile.TarFile, *names: str) -> str:
+def _extract_read(infotar: tarfile.TarFile, *names: str, **kwargs) -> str:
     """
     Extract a file from a tarfile and return its contents as a string.
 
@@ -23,14 +23,18 @@ def _extract_read(infotar: tarfile.TarFile, *names: str) -> str:
     names : str
         The different names to try to extract. Only the first one found is
         returned.
+    default: Any
+        The default value to return if none of the names are found.
     """
-    names_in_tar = infotar.getnames()
+    names_in_tar = set(infotar.getnames())
     for name in names:
         if name in names_in_tar:
             file = infotar.extractfile(name)
             if file is not None:
                 return file.read().decode()
     else:
+        if "default" in kwargs:
+            return kwargs["default"]
         raise ValueError(f"{names} not in {names_in_tar}")
 
 
@@ -101,31 +105,32 @@ def get_oci_artifact_data(
         return None
 
     YAML = yaml.YAML(typ="safe")
-    index: dict[str, Any] = json.loads(_extract_read(infotar, "index.json"))
+    index: dict[str, Any] = json.loads(
+        _extract_read(infotar, "index.json", default="{}")
+    )
     return {
         # https://github.com/regro/libcflib/blob/062858e90af2795d2eb098034728cace574a51b8/libcflib/harvester.py#L14
         "metadata_version": 1,
         "name": index.get("name", ""),
         "version": index.get("version", ""),
         "index": index,
-        "about": json.loads(_extract_read(infotar, "about.json")),
+        "about": json.loads(_extract_read(infotar, "about.json", default="{}")),
         "rendered_recipe": YAML.load(
-            _extract_read(infotar, "recipe/meta.yaml", "meta.yaml")
+            _extract_read(infotar, "recipe/meta.yaml", "meta.yaml", default="{}")
         ),
         "raw_recipe": _extract_read(
             infotar,
             "recipe/meta.yaml.template",
             "recipe/meta.yaml",
             "meta.yaml",
+            default="",
         ),
-        "conda_build_config": (
-            YAML.load(_extract_read(infotar, "recipe/conda_build_config.yaml"))
-            if "recipe/conda_build_config.yaml" in infotar.getnames()
-            else {}
+        "conda_build_config": YAML.load(
+            _extract_read(infotar, "recipe/conda_build_config.yaml", default="{}")
         ),
         "files": [
             f
-            for f in _extract_read(infotar, "files").splitlines()
+            for f in _extract_read(infotar, "files", default="").splitlines()
             if not f.lower().endswith((".pyc", ".txt"))
         ],
     }
