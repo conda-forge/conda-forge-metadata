@@ -26,7 +26,7 @@ def _extract_read(infotar: tarfile.TarFile, *names: str, **kwargs) -> str:
     default: Any
         The default value to return if none of the names are found.
     """
-    names_in_tar = infotar.getnames()
+    names_in_tar = set(infotar.getnames())
     for name in names:
         if name in names_in_tar:
             file = infotar.extractfile(name)
