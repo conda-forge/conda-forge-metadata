@@ -108,24 +108,25 @@ def get_oci_artifact_data(
         "name": index.get("name", ""),
         "version": index.get("version", ""),
         "index": index,
-        "about": json.loads(_extract_read(infotar, "about.json")),
+        "about": json.loads(_extract_read(infotar, "about.json") or "{}"),
         "rendered_recipe": YAML.load(
-            _extract_read(infotar, "recipe/meta.yaml", "meta.yaml")
+            _extract_read(infotar, "recipe/meta.yaml", "meta.yaml") or "{}"
         ),
-        "raw_recipe": _extract_read(
-            infotar,
-            "recipe/meta.yaml.template",
-            "recipe/meta.yaml",
-            "meta.yaml",
+        "raw_recipe": (
+            _extract_read(
+                infotar,
+                "recipe/meta.yaml.template",
+                "recipe/meta.yaml",
+                "meta.yaml",
+            )
+            or ""
         ),
         "conda_build_config": (
-            YAML.load(_extract_read(infotar, "recipe/conda_build_config.yaml"))
-            if "recipe/conda_build_config.yaml" in infotar.getnames()
-            else {}
+            YAML.load(_extract_read(infotar, "recipe/conda_build_config.yaml") or "{}")
         ),
         "files": [
             f
-            for f in _extract_read(infotar, "files").splitlines()
+            for f in (_extract_read(infotar, "files") or "").splitlines()
             if not f.lower().endswith((".pyc", ".txt"))
         ],
     }
