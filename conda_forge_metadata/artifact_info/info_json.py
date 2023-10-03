@@ -4,9 +4,10 @@ import json
 import tarfile
 from typing import Any, Generator, Tuple
 
+from ruamel import yaml
+
 from conda_forge_metadata.libcfgraph import get_libcfgraph_artifact_data
 from conda_forge_metadata.types import ArtifactData
-from ruamel import yaml
 
 VALID_BACKENDS = ("libcfgraph", "oci", "streamed")
 
