@@ -56,6 +56,8 @@ def get_artifact_info_as_json(
         if tar is not None:
             return info_json_from_tar_generator(tar)
     elif backend == "streamed":
+        if artifact.endswith(".tar.bz2"):
+            raise ValueError("streamed backend does not support .tar.bz2 artifacts")
         from conda_forge_metadata.streaming import get_streamed_artifact_data
 
         return info_json_from_tar_generator(
