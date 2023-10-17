@@ -107,10 +107,11 @@ def info_json_from_tar_generator(
         elif member.name.endswith("meta.yaml.template"):
             data["raw_recipe"] = _extract_read(tar, member, default="")
         elif member.name.endswith("meta.yaml"):
-            recipe = YAML.load(_extract_read(tar, member, default="{}"))
-            data["rendered_recipe"] = recipe
-            if data["raw_recipe"] == "":
-                data["raw_recipe"] = recipe
+            x = _extract_read(tar, member, default="{}")
+            if ("{{" in x or "{%" in x) and not data["raw_recipe"]:
+                data["raw_recipe"] = x
+            else:
+                data["rendered_recipe"] = YAML.load(x)
     if data["name"] is not None:
         return data  # type: ignore
 
