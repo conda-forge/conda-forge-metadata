@@ -3,8 +3,11 @@ import pytest
 from conda_forge_metadata.artifact_info import info_json
 
 
-@pytest.mark.parametrize("backend", ["libcfgraph", "oci"])
-def test_info_json(backend: str):
+@pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
+def test_info_json_tar_bz2(backend: str):
+    if backend == "streamed":
+        pytest.xfail("streamed backend does not support .tar.bz2 artifacts")
+
     info = info_json.get_artifact_info_as_json(
         "conda-forge",
         "osx-64",
@@ -32,8 +35,40 @@ def test_info_json(backend: str):
     assert "bin/21cmfast" in info["files"]
 
 
-@pytest.mark.parametrize("backend", ["libcfgraph", "oci"])
-def test_missing_conda_build(backend: str):
+@pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
+def test_info_json_conda(backend: str):
+    info = info_json.get_artifact_info_as_json(
+        "conda-forge",
+        "noarch",
+        "abipy-0.9.6-pyhd8ed1ab_0.conda",
+        backend=backend,
+    )
+    assert info is not None
+    assert info["metadata_version"] == 1
+    assert info["name"] == "abipy"
+    assert info["version"] == "0.9.6"
+    assert info["index"]["name"] == "abipy"
+    assert info["index"]["version"] == "0.9.6"
+    assert info["index"]["build"] == "pyhd8ed1ab_0"
+    assert info["index"]["subdir"] == "noarch"
+    assert "apscheduler" in info["index"]["depends"]
+    assert info["about"]["conda_version"] == "23.3.1"
+    assert info["rendered_recipe"]["package"]["name"] == "abipy"
+    assert (
+        info["rendered_recipe"]["source"]["sha256"]
+        == "dc34c9179b9e53649353b30c1b37f0a36f5ea681fc541d60cafb3f4cf176cddf"
+    )
+    assert info["raw_recipe"] is not None
+    assert info["raw_recipe"].startswith('{% set name = "abipy" %}')
+    assert info["conda_build_config"]["CI"] == "azure"
+    assert "site-packages/abipy/__init__.py" in info["files"]
+
+
+@pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
+def test_missing_conda_build_tar_bz2(backend: str):
+    if backend == "streamed":
+        pytest.xfail("streamed backend does not support .tar.bz2 artifacts")
+
     info = info_json.get_artifact_info_as_json(
         "conda-forge",
         "linux-64",
