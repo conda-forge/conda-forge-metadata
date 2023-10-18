@@ -112,7 +112,7 @@ def info_json_from_tar_generator(
                 data["raw_recipe"] = x
             else:
                 data["rendered_recipe"] = YAML.load(x)
-    if data["name"] is not None:
+    if data["name"]:
         return data  # type: ignore
 
 
