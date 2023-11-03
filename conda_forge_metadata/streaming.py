@@ -10,7 +10,7 @@ from conda_package_streaming.url import conda_reader_for_url
 def get_streamed_artifact_data(channel: str, subdir: str, artifact: str):
     if not channel.startswith("http"):
         if channel in ("pkgs/main", "pkgs/r", "pkgs/msys2"):
-            channel = f"https//repo.anaconda.com/{channel}"
+            channel = f"https://repo.anaconda.com/{channel}"
         else:
             channel = f"https://conda.anaconda.org/{channel}"
 
