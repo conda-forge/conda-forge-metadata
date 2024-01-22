@@ -95,6 +95,9 @@ def info_json_from_tar_generator(
         "files": [],
     }
     YAML = yaml.YAML(typ="safe")
+    # some recipes have duplicate keys;
+    # e.g. linux-64/clangxx_osx-64-16.0.6-h027b494_6.conda
+    YAML.allow_duplicate_keys = True
     for tar, member in tar_tuples:
         if member.name.endswith("index.json"):
             index = json.loads(_extract_read(tar, member, default="{}"))
