@@ -79,6 +79,26 @@ def test_missing_conda_build_tar_bz2(backend: str):
     assert info["conda_build_config"] == {}
 
 
+def test_files_skip_suffixes():
+    info = info_json.get_artifact_info_as_json(
+        "conda-forge",
+        "noarch",
+        "abipy-0.9.6-pyhd8ed1ab_0.conda",
+        backend="oci",
+    )
+    assert info is not None
+    assert "site-packages/abipy/__init__.py" in info["files"]
+    info = info_json.get_artifact_info_as_json(
+        "conda-forge",
+        "noarch",
+        "abipy-0.9.6-pyhd8ed1ab_0.conda",
+        backend="oci",
+        skip_files_suffixes=(".py",),
+    )
+    assert info is not None
+    assert "site-packages/abipy/__init__.py" not in info["files"]
+
+
 @pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
 def test_duplicate_keys_allowed(backend: str):
     info = info_json.get_artifact_info_as_json(

@@ -13,7 +13,11 @@ VALID_BACKENDS = ("libcfgraph", "oci", "streamed")
 
 
 def get_artifact_info_as_json(
-    channel: str, subdir: str, artifact: str, backend: str = "libcfgraph"
+    channel: str,
+    subdir: str,
+    artifact: str,
+    backend: str = "libcfgraph",
+    skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
 ) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
 
@@ -55,14 +59,18 @@ def get_artifact_info_as_json(
 
         tar = get_oci_artifact_data(channel, subdir, artifact)
         if tar is not None:
-            return info_json_from_tar_generator(tar)
+            return info_json_from_tar_generator(
+                tar,
+                skip_files_suffixes=skip_files_suffixes,
+            )
     elif backend == "streamed":
         if artifact.endswith(".tar.bz2"):
             raise ValueError("streamed backend does not support .tar.bz2 artifacts")
         from conda_forge_metadata.streaming import get_streamed_artifact_data
 
         return info_json_from_tar_generator(
-            get_streamed_artifact_data(channel, subdir, artifact)
+            get_streamed_artifact_data(channel, subdir, artifact),
+            skip_files_suffixes=skip_files_suffixes,
         )
     else:
         raise ValueError(
@@ -72,6 +80,7 @@ def get_artifact_info_as_json(
 
 def info_json_from_tar_generator(
     tar_tuples: Generator[Tuple[tarfile.TarFile, tarfile.TarInfo], None, None],
+    skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
 ) -> ArtifactData | None:
     # https://github.com/regro/libcflib/blob/062858e90af/libcflib/harvester.py#L14
     data = {
@@ -102,11 +111,12 @@ def info_json_from_tar_generator(
                 _extract_read(tar, member, default="{}")
             )
         elif member.name.endswith("files"):
-            data["files"] = [
-                f
-                for f in _extract_read(tar, member, default="").splitlines()
-                if not f.lower().endswith((".pyc", ".txt"))
-            ]
+            files = _extract_read(tar, member, default="").splitlines()
+            if skip_files_suffixes:
+                files = [
+                    f for f in files if not f.lower().endswith(skip_files_suffixes)
+                ]
+            data["files"] = files
         elif member.name.endswith("meta.yaml.template"):
             data["raw_recipe"] = _extract_read(tar, member, default="")
         elif member.name.endswith("meta.yaml"):
