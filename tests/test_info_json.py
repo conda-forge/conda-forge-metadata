@@ -77,3 +77,14 @@ def test_missing_conda_build_tar_bz2(backend: str):
     )
     assert info is not None
     assert info["conda_build_config"] == {}
+
+
+@pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
+def test_duplicate_keys_allowed(backend: str):
+    info = info_json.get_artifact_info_as_json(
+        "conda-forge",
+        "linux-64",
+        "clangxx_osx-64-16.0.6-h027b494_6.conda",
+        backend=backend,
+    )
+    assert info is not None
