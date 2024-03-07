@@ -3,6 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 
 import requests
+from deprecated import deprecated
 
 from conda_forge_metadata.types import ArtifactData
 
@@ -27,6 +28,12 @@ def _download_libcfgraph_index():
         _LIBCFGRAPH_INDEX += r.json()
 
 
+@deprecated(
+    reason=(
+        "conda-forge no longer maintains the libcfgraph metadata store. "
+        "This API will be removed in a future release."
+    )
+)
 def get_libcfgraph_index() -> list[str]:
     """Get a list of all artifacts indexed by libcfgraph.
 
@@ -44,6 +51,13 @@ def get_libcfgraph_index() -> list[str]:
     return _LIBCFGRAPH_INDEX
 
 
+@deprecated(
+    reason=(
+        "conda-forge no longer maintains the libcfgraph metadata store. "
+        "This API will be removed in a future release. "
+        "Use conda_forge_metdata.artifact_info.get_artifact_info_as_json instead."
+    )
+)
 @lru_cache(maxsize=1024)
 def get_libcfgraph_artifact_data(
     channel: str, subdir: str, artifact: str
@@ -132,6 +146,13 @@ def _get_libcfgraph_pkgs_for_import(import_name: str) -> set[str] | None:
     return import_to_pkg_map.get(import_name, None)
 
 
+@deprecated(
+    reason=(
+        "conda-forge no longer maintains the libcfgraph metadata store. "
+        "This API will be removed in a future release. "
+        "Use conda_forge_metdata.autotick_bot.get_pks_for_import instead."
+    )
+)
 def get_libcfgraph_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
     """Get a list of possible packages that supply a given import.
 

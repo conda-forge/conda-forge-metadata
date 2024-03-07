@@ -1,4 +1,5 @@
 conda-oci-mirror
+deprecated
 requests
 ruamel.yaml
 typing-extensions

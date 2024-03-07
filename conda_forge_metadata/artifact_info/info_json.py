@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import tarfile
+import warnings
 from typing import Any, Generator, Tuple
 
 from ruamel import yaml
@@ -9,14 +10,14 @@ from ruamel import yaml
 from conda_forge_metadata.libcfgraph import get_libcfgraph_artifact_data
 from conda_forge_metadata.types import ArtifactData
 
-VALID_BACKENDS = ("libcfgraph", "oci", "streamed")
+VALID_BACKENDS = ("oci", "streamed")
 
 
 def get_artifact_info_as_json(
     channel: str,
     subdir: str,
     artifact: str,
-    backend: str = "libcfgraph",
+    backend: str = "oci",
     skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
 ) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
@@ -30,6 +31,12 @@ def get_artifact_info_as_json(
     artifact : str
         The full artifact name with extension (e.g.,
         "21cmfast-3.0.2-py36h13dd421_0.tar.bz2").
+    backend : str, optional
+        The backend information source to use for the metadata. Valid
+        backends are "oci" and "streamed". The default is "oci".
+    skip_files_suffixes : Tuple[str, ...], optional
+        A tuple of suffixes to skip when reporting the files in the
+        artifact. The default is (".pyc", ".txt").
 
     Returns
     -------
@@ -53,6 +60,14 @@ def get_artifact_info_as_json(
                 elements ending in .pyc or .txt filtered out.
     """
     if backend == "libcfgraph":
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn(
+            "The 'libcfgraph' backend for get_artifact_info_as_json is deprecated and "
+            "will be removed in a future release. Use 'oci' or 'streamed' instead.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        warnings.simplefilter("default", DeprecationWarning)
         return get_libcfgraph_artifact_data(channel, subdir, artifact)
     elif backend == "oci":
         from conda_forge_metadata.oci import get_oci_artifact_data

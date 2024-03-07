@@ -14,6 +14,7 @@ authors = [
 description = "programatic access to conda-forge's metadata"
 dynamic = ["version"]
 dependencies = [
+    "deprecated",
     "requests",
     "ruamel.yaml",
     "typing-extensions"
