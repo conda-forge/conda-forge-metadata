@@ -6,7 +6,7 @@ import bz2
 import json
 from logging import getLogger
 from pathlib import Path
-from typing import Iterable, List, Generator, Union, Dict, Any
+from typing import Any, Dict, Generator, Iterable, List, Union
 from urllib.request import urlretrieve
 
 logger = getLogger(__name__)
