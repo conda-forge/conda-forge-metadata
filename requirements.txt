@@ -1,6 +1,6 @@
+beautifulsoup4
 conda-oci-mirror
 deprecated
 requests
 ruamel.yaml
 typing-extensions
-beautifulsoup4

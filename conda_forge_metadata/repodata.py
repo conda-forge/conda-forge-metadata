@@ -13,8 +13,8 @@ from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Union
 from urllib.request import urlretrieve
 
-import requests
 import bs4
+import requests
 
 logger = getLogger(__name__)
 
@@ -30,21 +30,20 @@ SUBDIRS = (
 )
 CACHE_DIR = Path(".repodata_cache")
 
-@lru_cache()
+
+@lru_cache
 def all_labels():
     if token := os.environ.get("BINSTAR_TOKEN"):
         label_info = requests.get(
             "https://api.anaconda.org/channels/conda-forge",
-            headers={'Authorization': f'token {token}'}
+            headers={"Authorization": f"token {token}"},
         ).json()
 
-        return sorted(
-            label
-            for label in label_info
-            if "/" not in label
-        )
+        return sorted(label for label in label_info if "/" not in label)
     else:
-        logger.info("No token detected. Fetching labels from anaconda.org HTML. Slow...")
+        logger.info(
+            "No token detected. Fetching labels from anaconda.org HTML. Slow..."
+        )
         r = requests.get("https://anaconda.org/conda-forge/repo")
         r.raise_for_status()
         html = r.text
@@ -98,7 +97,9 @@ def list_artifacts(
     for repodata in sorted(repodata_jsons):
         repodata = Path(repodata)
         subdir = repodata.stem.split(".")[0]
-        assert subdir in SUBDIRS, "Invalid repodata file name. Must be '<subdir>.<label>.json'."
+        assert (
+            subdir in SUBDIRS
+        ), "Invalid repodata file name. Must be '<subdir>.<label>.json'."
         data = json.loads(repodata.read_text())
         keys = ["packages", "packages.conda"]
         if include_broken:
@@ -137,4 +138,3 @@ def n_artifacts(include_all_labels: bool = True) -> int:
             seen.update(list_artifacts(repodatas, include_broken=True))
 
     return len(seen)
-
