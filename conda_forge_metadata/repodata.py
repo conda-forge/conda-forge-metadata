@@ -19,7 +19,7 @@ SUBDIRS = (
     "linux-ppc64le",
     "osx-arm64",
 )
-CACHE_DIR = Path("repodata_cache")
+CACHE_DIR = Path(".repodata_cache")
 
 
 def fetch_repodata(

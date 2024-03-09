@@ -130,4 +130,4 @@ dmypy.json
 conda_forge_metadata/_version.py
 
 # Downloaded stuff
-repodata_cache/
+.repodata_cache/
