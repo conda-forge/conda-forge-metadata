@@ -4,10 +4,17 @@ Utilities to deal with repodata
 
 import bz2
 import json
+import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from functools import lru_cache
+from itertools import product
 from logging import getLogger
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Union
 from urllib.request import urlretrieve
+
+import requests
+import bs4
 
 logger = getLogger(__name__)
 
@@ -23,6 +30,36 @@ SUBDIRS = (
 )
 CACHE_DIR = Path(".repodata_cache")
 
+@lru_cache()
+def all_labels():
+    if token := os.environ.get("BINSTAR_TOKEN"):
+        label_info = requests.get(
+            "https://api.anaconda.org/channels/conda-forge",
+            headers={'Authorization': f'token {token}'}
+        ).json()
+
+        return sorted(
+            label
+            for label in label_info
+            if "/" not in label
+        )
+    else:
+        logger.info("No token detected. Fetching labels from anaconda.org HTML. Slow...")
+        r = requests.get("https://anaconda.org/conda-forge/repo")
+        r.raise_for_status()
+        html = r.text
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        labels = []
+        len_prefix = len("/conda-forge/repo?label=")
+        for element in soup.select("ul#Label > li > a"):
+            href = element.get("href")
+            if not href:
+                continue
+            label = href[len_prefix:]
+            if label and label not in ("all", "empty") and "/" not in label:
+                labels.append(label)
+        return sorted(labels)
+
 
 def fetch_repodata(
     subdirs: Iterable[str] = SUBDIRS,
@@ -35,13 +72,12 @@ def fetch_repodata(
     for subdir in subdirs:
         if label == "main":
             repodata = f"https://conda.anaconda.org/conda-forge/{subdir}/repodata.json"
-            local_fn = Path(cache_dir, f"{subdir}.json")
         else:
             repodata = (
                 "https://conda.anaconda.org/conda-forge/"
                 f"label/{label}/{subdir}/repodata.json"
             )
-            local_fn = Path(cache_dir, f"{subdir}.{label}.json")
+        local_fn = Path(cache_dir, f"{subdir}.{label}.json")
         local_fn_bz2 = Path(str(local_fn) + ".bz2")
         paths.append(local_fn)
         if force_download or not local_fn.exists():
@@ -62,6 +98,7 @@ def list_artifacts(
     for repodata in sorted(repodata_jsons):
         repodata = Path(repodata)
         subdir = repodata.stem.split(".")[0]
+        assert subdir in SUBDIRS, "Invalid repodata file name. Must be '<subdir>.<label>.json'."
         data = json.loads(repodata.read_text())
         keys = ["packages", "packages.conda"]
         if include_broken:
@@ -77,11 +114,27 @@ def repodata(subdir: str) -> Dict[str, Any]:
     return json.loads(path.read_text())
 
 
-def n_artifacts(include_broken: bool = True) -> int:
-    repodatas = fetch_repodata()
-    if include_broken:
-        repodatas.extend(fetch_repodata(label="broken"))
-    count = 0
-    for _ in list_artifacts(repodatas, include_broken=include_broken):
-        count += 1
-    return count
+def n_artifacts(include_all_labels: bool = True) -> int:
+    """
+    This can be very slow if include_all_labels is true
+    """
+    if not include_all_labels:
+        count = 0
+        repodatas = fetch_repodata()
+        for _ in list_artifacts(repodatas):
+            count += 1
+        return count
+
+    labels = all_labels()
+    seen = set()
+    futures = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        for label, subdir in product(labels, SUBDIRS):
+            future = executor.submit(fetch_repodata, (subdir,), False, CACHE_DIR, label)
+            futures.append(future)
+        for future in as_completed(futures):
+            repodatas = future.result()
+            seen.update(list_artifacts(repodatas, include_broken=True))
+
+    return len(seen)
+

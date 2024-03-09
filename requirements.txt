@@ -3,3 +3,4 @@ deprecated
 requests
 ruamel.yaml
 typing-extensions
+beautifulsoup4
