@@ -18,7 +18,7 @@ SUBDIRS = (
     "osx-64",
     "osx-arm64",
     "win-64",
-    "win-arm64"
+    "win-arm64",
     "noarch",
 )
 CACHE_DIR = Path(".repodata_cache")
@@ -37,7 +37,10 @@ def fetch_repodata(
             repodata = f"https://conda.anaconda.org/conda-forge/{subdir}/repodata.json"
             local_fn = Path(cache_dir, f"{subdir}.json")
         else:
-            repodata = f"https://conda.anaconda.org/conda-forge/label/{label}/{subdir}/repodata.json"
+            repodata = (
+                "https://conda.anaconda.org/conda-forge/"
+                f"label/{label}/{subdir}/repodata.json"
+            )
             local_fn = Path(cache_dir, f"{subdir}.{label}.json")
         local_fn_bz2 = Path(str(local_fn) + ".bz2")
         paths.append(local_fn)
