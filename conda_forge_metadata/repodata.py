@@ -13,11 +13,12 @@ logger = getLogger(__name__)
 
 SUBDIRS = (
     "linux-64",
-    "osx-64",
-    "win-64",
     "linux-aarch64",
     "linux-ppc64le",
+    "osx-64",
     "osx-arm64",
+    "win-64",
+    "win-arm64"
     "noarch",
 )
 CACHE_DIR = Path(".repodata_cache")
