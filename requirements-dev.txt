@@ -1,7 +1,7 @@
 flake8
 flaky
 pip
-pytest
+pytest <8.1.0a0  # flaky does not support pytest >=8.1
 python-build
 setuptools>=45
 setuptools_scm>=7
