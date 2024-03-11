@@ -121,18 +121,17 @@ def repodata(subdir: str) -> Dict[str, Any]:
     return json.loads(path.read_text())
 
 
-def n_artifacts(labels: Tuple[str] = ("main",)) -> int:
+def n_artifacts(labels: Tuple[str] = ("main",)) -> Tuple[int, int]:
     """
     To get _all_ artifacts ever published, use `n_artifacts(all_labels())`.
-    """
-    if len(labels) == 1:
-        count = 0
-        repodatas = fetch_repodata(label=labels[0])
-        for _ in list_artifacts(repodatas):
-            count += 1
-        return count
 
-    seen = set()
+    Returns number of artifacts and number of unique package names.
+    """
+    def pkg_name(artifact: str) -> str:
+        _, pkg = artifact.split("/")
+        return pkg.rsplit("-", 2)[0]
+
+    seen_artifacts, seen_package_names = set(), set()
     futures = []
     with ThreadPoolExecutor(max_workers=10) as executor:
         for label, subdir in product(labels, SUBDIRS):
@@ -140,6 +139,9 @@ def n_artifacts(labels: Tuple[str] = ("main",)) -> int:
             futures.append(future)
         for future in as_completed(futures):
             repodatas = future.result()
-            seen.update(list_artifacts(repodatas, include_broken=True))
+            artifacts = list_artifacts(repodatas, include_broken=True)
+            for artifact in artifacts:
+                seen_artifacts.add(artifacts)
+                seen_package_names.add(pkg_name(artifact))
 
-    return len(seen)
+    return len(seen_artifacts), len(seen_package_names)
