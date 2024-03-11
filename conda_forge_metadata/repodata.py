@@ -10,7 +10,7 @@ from functools import lru_cache
 from itertools import product
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, List, Union
+from typing import Any, Dict, Generator, Iterable, List, Tuple, Union
 from urllib.request import urlretrieve
 
 import bs4
@@ -121,18 +121,17 @@ def repodata(subdir: str) -> Dict[str, Any]:
     return json.loads(path.read_text())
 
 
-def n_artifacts(include_all_labels: bool = True) -> int:
+def n_artifacts(labels: Tuple[str] = ("main",)) -> int:
     """
-    This can be very slow if include_all_labels is true
+    To get _all_ artifacts ever published, use `n_artifacts(all_labels())`.
     """
-    if not include_all_labels:
+    if len(labels) == 1:
         count = 0
-        repodatas = fetch_repodata()
+        repodatas = fetch_repodata(label=labels[0])
         for _ in list_artifacts(repodatas):
             count += 1
         return count
 
-    labels = all_labels(use_remote_cache=True)
     seen = set()
     futures = []
     with ThreadPoolExecutor(max_workers=10) as executor:
