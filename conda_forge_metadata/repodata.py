@@ -35,7 +35,8 @@ CACHE_DIR = Path(".repodata_cache")
 def all_labels(use_remote_cache: bool = False) -> List[str]:
     if use_remote_cache:
         r = requests.get(
-            "https://raw.githubusercontent.com/conda-forge/by-the-numbers/main/data/labels.json"
+            "https://raw.githubusercontent.com/conda-forge/"
+            "by-the-numbers/main/data/labels.json"
         )
         r.raise_for_status()
         return r.json()
@@ -48,9 +49,7 @@ def all_labels(use_remote_cache: bool = False) -> List[str]:
 
         return sorted(label for label in label_info if "/" not in label)
 
-    logger.info(
-        "No token detected. Fetching labels from anaconda.org HTML. Slow..."
-    )
+    logger.info("No token detected. Fetching labels from anaconda.org HTML. Slow...")
     r = requests.get("https://anaconda.org/conda-forge/repo")
     r.raise_for_status()
     html = r.text
