@@ -32,7 +32,14 @@ CACHE_DIR = Path(".repodata_cache")
 
 
 @lru_cache
-def all_labels():
+def all_labels(use_remote_cache: bool = False) -> List[str]:
+    if use_remote_cache:
+        r = requests.get(
+            "https://raw.githubusercontent.com/conda-forge/by-the-numbers/main/data/labels.json"
+        )
+        r.raise_for_status()
+        return r.json()
+
     if token := os.environ.get("BINSTAR_TOKEN"):
         label_info = requests.get(
             "https://api.anaconda.org/channels/conda-forge",
@@ -40,24 +47,24 @@ def all_labels():
         ).json()
 
         return sorted(label for label in label_info if "/" not in label)
-    else:
-        logger.info(
-            "No token detected. Fetching labels from anaconda.org HTML. Slow..."
-        )
-        r = requests.get("https://anaconda.org/conda-forge/repo")
-        r.raise_for_status()
-        html = r.text
-        soup = bs4.BeautifulSoup(html, "html.parser")
-        labels = []
-        len_prefix = len("/conda-forge/repo?label=")
-        for element in soup.select("ul#Label > li > a"):
-            href = element.get("href")
-            if not href:
-                continue
-            label = href[len_prefix:]
-            if label and label not in ("all", "empty") and "/" not in label:
-                labels.append(label)
-        return sorted(labels)
+
+    logger.info(
+        "No token detected. Fetching labels from anaconda.org HTML. Slow..."
+    )
+    r = requests.get("https://anaconda.org/conda-forge/repo")
+    r.raise_for_status()
+    html = r.text
+    soup = bs4.BeautifulSoup(html, "html.parser")
+    labels = []
+    len_prefix = len("/conda-forge/repo?label=")
+    for element in soup.select("ul#Label > li > a"):
+        href = element.get("href")
+        if not href:
+            continue
+        label = href[len_prefix:]
+        if label and label not in ("all", "empty") and "/" not in label:
+            labels.append(label)
+    return sorted(labels)
 
 
 def fetch_repodata(
