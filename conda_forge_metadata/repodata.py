@@ -132,7 +132,7 @@ def n_artifacts(include_all_labels: bool = True) -> int:
             count += 1
         return count
 
-    labels = all_labels()
+    labels = all_labels(use_remote_cache=True)
     seen = set()
     futures = []
     with ThreadPoolExecutor(max_workers=10) as executor:
