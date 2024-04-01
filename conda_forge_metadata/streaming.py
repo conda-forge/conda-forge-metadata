@@ -1,6 +1,7 @@
 """
 Use conda-package-streaming to fetch package metadata
 """
+
 from contextlib import closing
 
 from conda_package_streaming.package_streaming import stream_conda_component
