@@ -29,14 +29,15 @@ jobs:
           use-mamba: true
 
       - name: configure conda and install code
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
-          mamba install --yes --file=requirements.txt
-          mamba install --yes --file=requirements-dev.txt
+          mamba install --yes \
+            --file=requirements.txt \
+            --file=requirements-dev.txt
           python -m pip install -v --no-deps --no-build-isolation -e .
 
       - name: test versions
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           pip uninstall conda-forge-metadata --yes
           [[ $(python setup.py --version) != "0.0.0" ]] || exit 1
@@ -59,12 +60,7 @@ jobs:
 
           python -m pip install -v --no-deps --no-build-isolation -e .
 
-      - name: lint
-        shell: bash -l {0}
-        run: |
-          flake8 conda_forge_metadata
-
       - name: test
-        shell: bash -l {0}
+        shell: bash -el {0}
         run: |
           pytest -vvs tests

@@ -1,2 +1,6 @@
+beautifulsoup4
+conda-oci-mirror
+deprecated
 requests
-pyyaml
+ruamel.yaml
+typing-extensions

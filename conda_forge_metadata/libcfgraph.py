@@ -1,5 +1,11 @@
+from __future__ import annotations
+
 from functools import lru_cache
+
 import requests
+from deprecated import deprecated
+
+from conda_forge_metadata.types import ArtifactData
 
 _LIBCFGRAPH_INDEX = None
 
@@ -22,7 +28,13 @@ def _download_libcfgraph_index():
         _LIBCFGRAPH_INDEX += r.json()
 
 
-def get_libcfgraph_index():
+@deprecated(
+    reason=(
+        "conda-forge no longer maintains the libcfgraph metadata store. "
+        "This API will be removed in a future release."
+    )
+)
+def get_libcfgraph_index() -> list[str]:
     """Get a list of all artifacts indexed by libcfgraph.
 
     Each element of the list looks like
@@ -35,11 +47,21 @@ def get_libcfgraph_index():
     """
     if _LIBCFGRAPH_INDEX is None:
         _download_libcfgraph_index()
+    assert _LIBCFGRAPH_INDEX is not None
     return _LIBCFGRAPH_INDEX
 
 
+@deprecated(
+    reason=(
+        "conda-forge no longer maintains the libcfgraph metadata store. "
+        "This API will be removed in a future release. "
+        "Use conda_forge_metdata.artifact_info.get_artifact_info_as_json instead."
+    )
+)
 @lru_cache(maxsize=1024)
-def get_libcfgraph_artifact_data(channel, subdir, artifact):
+def get_libcfgraph_artifact_data(
+    channel: str, subdir: str, artifact: str
+) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
 
     Parameters
@@ -84,10 +106,7 @@ def get_libcfgraph_artifact_data(channel, subdir, artifact):
     else:
         nm = artifact[: -len(".conda")]
 
-    libcfgraph_path = (
-        "artifacts/"
-        f"{nm_parts[0]}/{channel}/{subdir}/{nm}.json"
-    )
+    libcfgraph_path = "artifacts/" f"{nm_parts[0]}/{channel}/{subdir}/{nm}.json"
     if libcfgraph_path in get_libcfgraph_index():
         url = (
             "https://raw.githubusercontent.com/regro/libcfgraph/master/"
@@ -101,32 +120,40 @@ def get_libcfgraph_artifact_data(channel, subdir, artifact):
 
 
 @lru_cache(maxsize=1)
-def _import_to_pkg_maps_num_letters():
+def _import_to_pkg_maps_num_letters() -> int:
     req = requests.get(
-        'https://raw.githubusercontent.com/regro/libcfgraph/master'
-        '/import_to_pkg_maps_meta.json'
+        "https://raw.githubusercontent.com/regro/libcfgraph/master"
+        "/import_to_pkg_maps_meta.json"
     )
     req.raise_for_status()
-    return int(req.json()['num_letters'])
+    return int(req.json()["num_letters"])
 
 
 @lru_cache(maxsize=128)
-def _import_to_pkg_maps_cache(import_first_letters):
+def _import_to_pkg_maps_cache(import_first_letters: str) -> dict[str, set[str]]:
     req = requests.get(
-        f'https://raw.githubusercontent.com/regro/libcfgraph'
-        f'/master/import_to_pkg_maps/{import_first_letters.lower()}.json')
+        f"https://raw.githubusercontent.com/regro/libcfgraph"
+        f"/master/import_to_pkg_maps/{import_first_letters.lower()}.json"
+    )
     req.raise_for_status()
-    return {k: set(v['elements']) for k, v in req.json().items()}
+    return {k: set(v["elements"]) for k, v in req.json().items()}
 
 
-def _get_libcfgraph_pkgs_for_import(import_name):
+def _get_libcfgraph_pkgs_for_import(import_name: str) -> set[str] | None:
     num_letters = _import_to_pkg_maps_num_letters()
-    fllt = import_name[:min(len(import_name), num_letters)]
+    fllt = import_name[: min(len(import_name), num_letters)]
     import_to_pkg_map = _import_to_pkg_maps_cache(fllt)
     return import_to_pkg_map.get(import_name, None)
 
 
-def get_libcfgraph_pkgs_for_import(import_name):
+@deprecated(
+    reason=(
+        "conda-forge no longer maintains the libcfgraph metadata store. "
+        "This API will be removed in a future release. "
+        "Use conda_forge_metdata.autotick_bot.get_pks_for_import instead."
+    )
+)
+def get_libcfgraph_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
     """Get a list of possible packages that supply a given import.
 
     **This data is approximate and may be wrong.**
@@ -153,6 +180,6 @@ def get_libcfgraph_pkgs_for_import(import_name):
         top-level import with all subpackages removed (e.g., foo.bar.baz
         will be returned as foo).
     """
-    import_name = import_name.split('.')[0]
+    import_name = import_name.split(".")[0]
     supplying_pkgs = _get_libcfgraph_pkgs_for_import(import_name)
     return supplying_pkgs, import_name

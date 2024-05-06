@@ -1,0 +1,9 @@
+{
+    "pythonPlatform": "Linux",
+    "pythonVersion": "3.8",
+    "reportUnnecessaryTypeIgnoreComment": false,
+    "typeCheckingMode": "basic",
+    "useLibraryCodeForTypes": true,
+    "reportMissingParameterType": "error",
+    "reportMissingTypeArgument": "error"
+}

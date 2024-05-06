@@ -1,7 +1,25 @@
+from __future__ import annotations
+
+import json
+import tarfile
+import warnings
+from typing import Any, Generator, Tuple
+
+from ruamel import yaml
+
 from conda_forge_metadata.libcfgraph import get_libcfgraph_artifact_data
+from conda_forge_metadata.types import ArtifactData
+
+VALID_BACKENDS = ("oci", "streamed")
 
 
-def get_artifact_info_as_json(channel, subdir, artifact):
+def get_artifact_info_as_json(
+    channel: str,
+    subdir: str,
+    artifact: str,
+    backend: str = "oci",
+    skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
+) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
 
     Parameters
@@ -13,6 +31,12 @@ def get_artifact_info_as_json(channel, subdir, artifact):
     artifact : str
         The full artifact name with extension (e.g.,
         "21cmfast-3.0.2-py36h13dd421_0.tar.bz2").
+    backend : str, optional
+        The backend information source to use for the metadata. Valid
+        backends are "oci" and "streamed". The default is "oci".
+    skip_files_suffixes : Tuple[str, ...], optional
+        A tuple of suffixes to skip when reporting the files in the
+        artifact. The default is (".pyc", ".txt").
 
     Returns
     -------
@@ -35,4 +59,95 @@ def get_artifact_info_as_json(channel, subdir, artifact):
             "files": a list of files in the recipe from info/files with
                 elements ending in .pyc or .txt filtered out.
     """
-    return get_libcfgraph_artifact_data(channel, subdir, artifact)
+    if backend == "libcfgraph":
+        warnings.simplefilter("always", DeprecationWarning)
+        warnings.warn(
+            "The 'libcfgraph' backend for get_artifact_info_as_json is deprecated and "
+            "will be removed in a future release. Use 'oci' or 'streamed' instead.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        warnings.simplefilter("default", DeprecationWarning)
+        return get_libcfgraph_artifact_data(channel, subdir, artifact)
+    elif backend == "oci":
+        from conda_forge_metadata.oci import get_oci_artifact_data
+
+        tar = get_oci_artifact_data(channel, subdir, artifact)
+        if tar is not None:
+            return info_json_from_tar_generator(
+                tar,
+                skip_files_suffixes=skip_files_suffixes,
+            )
+    elif backend == "streamed":
+        if artifact.endswith(".tar.bz2"):
+            raise ValueError("streamed backend does not support .tar.bz2 artifacts")
+        from conda_forge_metadata.streaming import get_streamed_artifact_data
+
+        return info_json_from_tar_generator(
+            get_streamed_artifact_data(channel, subdir, artifact),
+            skip_files_suffixes=skip_files_suffixes,
+        )
+    else:
+        raise ValueError(
+            f"Unknown backend {backend!r}. Valid backends are {VALID_BACKENDS}."
+        )
+
+
+def info_json_from_tar_generator(
+    tar_tuples: Generator[Tuple[tarfile.TarFile, tarfile.TarInfo], None, None],
+    skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
+) -> ArtifactData | None:
+    # https://github.com/regro/libcflib/blob/062858e90af/libcflib/harvester.py#L14
+    data = {
+        "metadata_version": 1,
+        "name": "",
+        "version": "",
+        "index": {},
+        "about": {},
+        "rendered_recipe": {},
+        "raw_recipe": "",
+        "conda_build_config": {},
+        "files": [],
+    }
+    YAML = yaml.YAML(typ="safe")
+    # some recipes have duplicate keys;
+    # e.g. linux-64/clangxx_osx-64-16.0.6-h027b494_6.conda
+    YAML.allow_duplicate_keys = True
+    for tar, member in tar_tuples:
+        if member.name.endswith("index.json"):
+            index = json.loads(_extract_read(tar, member, default="{}"))
+            data["name"] = index.get("name", "")
+            data["version"] = index.get("version", "")
+            data["index"] = index
+        elif member.name.endswith("about.json"):
+            data["about"] = json.loads(_extract_read(tar, member, default="{}"))
+        elif member.name.endswith("conda_build_config.yaml"):
+            data["conda_build_config"] = YAML.load(
+                _extract_read(tar, member, default="{}")
+            )
+        elif member.name.endswith("files"):
+            files = _extract_read(tar, member, default="").splitlines()
+            if skip_files_suffixes:
+                files = [
+                    f for f in files if not f.lower().endswith(skip_files_suffixes)
+                ]
+            data["files"] = files
+        elif member.name.endswith("meta.yaml.template"):
+            data["raw_recipe"] = _extract_read(tar, member, default="")
+        elif member.name.endswith("meta.yaml"):
+            x = _extract_read(tar, member, default="{}")
+            if ("{{" in x or "{%" in x) and not data["raw_recipe"]:
+                data["raw_recipe"] = x
+            else:
+                data["rendered_recipe"] = YAML.load(x)
+    if data["name"]:
+        return data  # type: ignore
+
+
+def _extract_read(
+    tar: tarfile.TarFile, member: tarfile.TarInfo, default: Any = None
+) -> str:
+    f = tar.extractfile(member)
+    if f:
+        return f.read().decode() or default
+    return default
