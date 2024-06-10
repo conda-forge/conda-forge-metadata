@@ -116,9 +116,9 @@ def info_json_from_tar_generator(
     YAML.allow_duplicate_keys = True
     for tar, member in tar_tuples:
         path = Path(member.name)
-        if path.parts[0] != "info":
-            continue
-        if path.parts[1] in ("test", "license"):
+        if len(path.parts) > 1 and path.parts[0] == "info":
+            path = Path(*path.parts[1:])
+        if path.parts and path.parts[0] in ("test", "licenses"):
             continue
         if path.name == "index.json":
             index = json.loads(_extract_read(tar, member, default="{}"))
