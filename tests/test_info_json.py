@@ -65,6 +65,30 @@ def test_info_json_conda(backend: str):
 
 
 @pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
+def test_info_json_conda_unlucky_test_file(backend: str):
+    """
+    See https://github.com/regro/conda-forge-metadata/pull/36
+
+    This artifact has test/xxxx/something_index.json,
+    which tripped the original info/ parsing logic.
+    """
+    info = info_json.get_artifact_info_as_json(
+        "conda-forge",
+        "noarch",
+        "nodeenv-1.9.1-pyhd8ed1ab_0.conda",
+        backend=backend,
+    )
+    assert info is not None
+    assert info["metadata_version"] == 1
+    assert info["name"] == "nodeenv"
+    assert info["version"] == "1.9.1"
+    assert info["index"]["name"] == "nodeenv"
+    assert info["index"]["version"] == "1.9.1"
+    assert info["index"]["build"] == "pyhd8ed1ab_0"
+    assert info["index"]["subdir"] == "noarch"
+
+
+@pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
 def test_missing_conda_build_tar_bz2(backend: str):
     if backend == "streamed":
         pytest.xfail("streamed backend does not support .tar.bz2 artifacts")

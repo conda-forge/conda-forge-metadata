@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import tarfile
 import warnings
+from pathlib import Path
 from typing import Any, Generator, Tuple
 
 from ruamel import yaml
@@ -114,27 +115,32 @@ def info_json_from_tar_generator(
     # e.g. linux-64/clangxx_osx-64-16.0.6-h027b494_6.conda
     YAML.allow_duplicate_keys = True
     for tar, member in tar_tuples:
-        if member.name.endswith("index.json"):
+        path = Path(member.name)
+        if len(path.parts) > 1 and path.parts[0] == "info":
+            path = Path(*path.parts[1:])
+        if path.parts and path.parts[0] in ("test", "licenses"):
+            continue
+        if path.name == "index.json":
             index = json.loads(_extract_read(tar, member, default="{}"))
             data["name"] = index.get("name", "")
             data["version"] = index.get("version", "")
             data["index"] = index
-        elif member.name.endswith("about.json"):
+        elif path.name == "about.json":
             data["about"] = json.loads(_extract_read(tar, member, default="{}"))
-        elif member.name.endswith("conda_build_config.yaml"):
+        elif path.name == "conda_build_config.yaml":
             data["conda_build_config"] = YAML.load(
                 _extract_read(tar, member, default="{}")
             )
-        elif member.name.endswith("files"):
+        elif path.name == "files":
             files = _extract_read(tar, member, default="").splitlines()
             if skip_files_suffixes:
                 files = [
                     f for f in files if not f.lower().endswith(skip_files_suffixes)
                 ]
             data["files"] = files
-        elif member.name.endswith("meta.yaml.template"):
+        elif path.name == "meta.yaml.template":
             data["raw_recipe"] = _extract_read(tar, member, default="")
-        elif member.name.endswith("meta.yaml"):
+        elif path.name == "meta.yaml":
             x = _extract_read(tar, member, default="{}")
             if ("{{" in x or "{%" in x) and not data["raw_recipe"]:
                 data["raw_recipe"] = x
