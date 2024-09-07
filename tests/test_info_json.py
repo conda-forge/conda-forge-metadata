@@ -67,7 +67,7 @@ def test_info_json_conda(backend: str):
 @pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
 def test_info_json_conda_unlucky_test_file(backend: str):
     """
-    See https://github.com/regro/conda-forge-metadata/pull/36
+    See https://github.com/conda-forge/conda-forge-metadata/pull/36
 
     This artifact has test/xxxx/something_index.json,
     which tripped the original info/ parsing logic.
