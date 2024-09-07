@@ -1,5 +1,13 @@
-# This is for the "pre-commit" tool, which enforces checks before local commits are allowed.
-# <https://pre-commit.com/>
+ci:
+    autofix_commit_msg: |
+        [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+        for more information, see https://pre-commit.ci
+    autofix_prs: false
+    autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+    autoupdate_schedule: monthly
+    skip: []
+    submodules: false
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks

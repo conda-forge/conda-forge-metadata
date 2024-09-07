@@ -29,7 +29,7 @@ oci = [
 ]
 
 [project.urls]
-home = "https://github.com/regro/conda-forge-metadata"
+home = "https://github.com/conda-forge/conda-forge-metadata"
 
 [tool.setuptools_scm]
 write_to = "conda_forge_metadata/_version.py"
