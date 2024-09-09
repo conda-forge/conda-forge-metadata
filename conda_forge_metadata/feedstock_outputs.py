@@ -1,7 +1,10 @@
+import time
+from fnmatch import fnmatch
 from functools import lru_cache
 from typing import Any, TypedDict
 
 import requests
+from ruamel.yaml import YAML
 
 from conda_forge_metadata.types import CondaPackageName
 
@@ -53,8 +56,28 @@ def sharded_path(name: CondaPackageName) -> str:
     return f"{outputs_path}/{'/'.join(chars)}/{name}.json"
 
 
+@lru_cache(maxsize=1)
+def _fetch_allowed_autoreg_feedstock_globs(time_int):
+    r = requests.get(
+        "https://raw.githubusercontent.com/conda-forge/feedstock-outputs/"
+        "main/feedstock_outputs_autoreg_allowlist.yml"
+    )
+    r.raise_for_status()
+    yaml = YAML(typ="safe")
+    return yaml.load(r.text)
+
+
+def fetch_allowed_autoreg_feedstock_globs():
+    return _fetch_allowed_autoreg_feedstock_globs(time.monotonic() // 120)
+
+
+fetch_allowed_autoreg_feedstock_globs.cache_clear = (
+    _fetch_allowed_autoreg_feedstock_globs.cache_clear
+)
+
+
 @lru_cache(maxsize=1024)
-def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> str:
+def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> list[str]:
     """Map a package name to the feedstock name(s).
 
     Parameters
@@ -66,10 +89,17 @@ def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> str:
 
     Returns
     -------
-    feedstock : str
+    feedstock : list of str
         The name of the feedstock, without the ``-feedstock`` suffix.
     """
     assert name, "name must not be empty"
+
+    feedstocks = set()
+    fs_pats = fetch_allowed_autoreg_feedstock_globs()
+    for autoreg_feedstock, pats in fs_pats.items():
+        for pat in pats:
+            if fnmatch(name, pat):
+                feedstocks.add(autoreg_feedstock)
 
     ref = "main"
     path = sharded_path(name)
@@ -77,8 +107,12 @@ def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> str:
         f"https://raw.githubusercontent.com/conda-forge/feedstock-outputs/{ref}/{path}",
         **request_kwargs,
     )
-    req.raise_for_status()
-    return req.json()["feedstocks"]
+    if not feedstocks:
+        req.raise_for_status()
+    if req.status_code == 200:
+        feedstocks |= set(req.json()["feedstocks"])
+
+    return list(feedstocks)
 
 
 if __name__ == "__main__":
