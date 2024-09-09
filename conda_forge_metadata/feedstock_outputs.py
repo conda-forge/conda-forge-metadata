@@ -56,6 +56,7 @@ def sharded_path(name: CondaPackageName) -> str:
     return f"{outputs_path}/{'/'.join(chars)}/{name}.json"
 
 
+@lru_cache(maxsize=1)
 def _fetch_allowed_autoreg_feedstock_globs(time_int):
     r = requests.get(
         "https://raw.githubusercontent.com/conda-forge/feedstock-outputs/"
@@ -76,7 +77,7 @@ fetch_allowed_autoreg_feedstock_globs.cache_clear = (
 
 
 @lru_cache(maxsize=1024)
-def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> set(str):
+def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> list[str]:
     """Map a package name to the feedstock name(s).
 
     Parameters
@@ -88,10 +89,17 @@ def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> set(s
 
     Returns
     -------
-    feedstock : set of str
+    feedstock : list of str
         The name of the feedstock, without the ``-feedstock`` suffix.
     """
     assert name, "name must not be empty"
+
+    feedstocks = set()
+    fs_pats = fetch_allowed_autoreg_feedstock_globs()
+    for autoreg_feedstock, pats in fs_pats.items():
+        for pat in pats:
+            if fnmatch(name, pat):
+                feedstocks.add(autoreg_feedstock)
 
     ref = "main"
     path = sharded_path(name)
@@ -99,15 +107,12 @@ def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> set(s
         f"https://raw.githubusercontent.com/conda-forge/feedstock-outputs/{ref}/{path}",
         **request_kwargs,
     )
-    req.raise_for_status()
-    feedstocks = set(req.json()["feedstocks"])
-    fs_pats = fetch_allowed_autoreg_feedstock_globs()
-    for autoreg_feedstock, pats in fs_pats.items():
-        for pat in pats:
-            if fnmatch(name, pat):
-                feedstocks.add(autoreg_feedstock)
+    if not feedstocks:
+        req.raise_for_status()
+    if req.status_code == 200:
+        feedstocks |= set(req.json()["feedstocks"])
 
-    return feedstocks
+    return list(feedstocks)
 
 
 if __name__ == "__main__":
