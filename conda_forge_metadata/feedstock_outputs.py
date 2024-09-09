@@ -1,7 +1,10 @@
+import time
+from fnmatch import fnmatch
 from functools import lru_cache
 from typing import Any, TypedDict
 
 import requests
+from ruamel.yaml import YAML
 
 from conda_forge_metadata.types import CondaPackageName
 
@@ -53,8 +56,27 @@ def sharded_path(name: CondaPackageName) -> str:
     return f"{outputs_path}/{'/'.join(chars)}/{name}.json"
 
 
+def _fetch_allowed_autoreg_feedstock_globs(time_int):
+    r = requests.get(
+        "https://raw.githubusercontent.com/conda-forge/feedstock-outputs/"
+        "main/feedstock_outputs_autoreg_allowlist.yml"
+    )
+    r.raise_for_status()
+    yaml = YAML(typ="safe")
+    return yaml.load(r.text)
+
+
+def fetch_allowed_autoreg_feedstock_globs():
+    return _fetch_allowed_autoreg_feedstock_globs(time.monotonic() // 120)
+
+
+fetch_allowed_autoreg_feedstock_globs.cache_clear = (
+    _fetch_allowed_autoreg_feedstock_globs.cache_clear
+)
+
+
 @lru_cache(maxsize=1024)
-def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> str:
+def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> set(str):
     """Map a package name to the feedstock name(s).
 
     Parameters
@@ -66,7 +88,7 @@ def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> str:
 
     Returns
     -------
-    feedstock : str
+    feedstock : set of str
         The name of the feedstock, without the ``-feedstock`` suffix.
     """
     assert name, "name must not be empty"
@@ -78,7 +100,14 @@ def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> str:
         **request_kwargs,
     )
     req.raise_for_status()
-    return req.json()["feedstocks"]
+    feedstocks = set(req.json()["feedstocks"])
+    fs_pats = fetch_allowed_autoreg_feedstock_globs()
+    for autoreg_feedstock, pats in fs_pats.items():
+        for pat in pats:
+            if fnmatch(name, pat):
+                feedstocks.add(autoreg_feedstock)
+
+    return feedstocks
 
 
 if __name__ == "__main__":
