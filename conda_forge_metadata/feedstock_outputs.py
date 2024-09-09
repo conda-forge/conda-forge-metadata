@@ -1,7 +1,7 @@
 import time
 from fnmatch import fnmatch
 from functools import lru_cache
-from typing import Any, TypedDict
+from typing import Any, List, TypedDict
 
 import requests
 from ruamel.yaml import YAML
@@ -77,7 +77,7 @@ fetch_allowed_autoreg_feedstock_globs.cache_clear = (
 
 
 @lru_cache(maxsize=1024)
-def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> list[str]:
+def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> List[str]:
     """Map a package name to the feedstock name(s).
 
     Parameters
