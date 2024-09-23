@@ -1,4 +1,7 @@
+from unittest.mock import MagicMock
+
 import pytest
+import requests
 
 from conda_forge_metadata.artifact_info import info_json
 
@@ -86,6 +89,21 @@ def test_info_json_conda_unlucky_test_file(backend: str):
     assert info["index"]["version"] == "1.9.1"
     assert info["index"]["build"] == "pyhd8ed1ab_0"
     assert info["index"]["subdir"] == "noarch"
+
+
+def test_info_json_custom_session_object():
+    session = MagicMock()
+    session.get.side_effect = requests.get
+
+    info_json.get_artifact_info_as_json(
+        "conda-forge",
+        "noarch",
+        "nodeenv-1.9.1-pyhd8ed1ab_0.conda",
+        backend="streamed",
+        session=session,
+    )
+
+    session.get.assert_called()
 
 
 @pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
