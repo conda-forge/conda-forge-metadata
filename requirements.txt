@@ -1,6 +1,6 @@
 beautifulsoup4
-conda-oci-mirror
 deprecated
+git+https://github.com/channel-mirrors/conda-oci-mirror.git@v0.1.0
 requests
 ruamel.yaml
 typing-extensions
