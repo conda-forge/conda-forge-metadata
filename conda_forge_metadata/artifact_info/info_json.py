@@ -92,7 +92,7 @@ def get_artifact_info_as_json(
         from conda_forge_metadata.streaming import get_streamed_artifact_data
 
         return info_json_from_tar_generator(
-            get_streamed_artifact_data(channel, subdir, artifact, session),
+            get_streamed_artifact_data(channel, subdir, artifact, session=session),
             skip_files_suffixes=skip_files_suffixes,
         )
     else:
