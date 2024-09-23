@@ -4,8 +4,9 @@ import json
 import tarfile
 import warnings
 from pathlib import Path
-from typing import Any, Generator, Tuple
+from typing import Any, Generator, Optional, Tuple
 
+import requests
 from ruamel import yaml
 
 from conda_forge_metadata.libcfgraph import get_libcfgraph_artifact_data
@@ -20,6 +21,7 @@ def get_artifact_info_as_json(
     artifact: str,
     backend: str = "oci",
     skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
+    session: Optional[requests.Session] = None,
 ) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
 
@@ -38,6 +40,11 @@ def get_artifact_info_as_json(
     skip_files_suffixes : Tuple[str, ...], optional
         A tuple of suffixes to skip when reporting the files in the
         artifact. The default is (".pyc", ".txt").
+    session : requests.Session, optional
+        A session object to use for HTTP requests. If not provided, a default
+        session object is used.
+        Note: Currently, this is only used for the "streamed" backend. If the
+        backend is "oci", this parameter is ignored.
 
     Returns
     -------
@@ -85,7 +92,7 @@ def get_artifact_info_as_json(
         from conda_forge_metadata.streaming import get_streamed_artifact_data
 
         return info_json_from_tar_generator(
-            get_streamed_artifact_data(channel, subdir, artifact),
+            get_streamed_artifact_data(channel, subdir, artifact, session=session),
             skip_files_suffixes=skip_files_suffixes,
         )
     else:
