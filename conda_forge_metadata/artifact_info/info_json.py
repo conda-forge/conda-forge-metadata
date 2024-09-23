@@ -4,7 +4,7 @@ import json
 import tarfile
 import warnings
 from pathlib import Path
-from typing import Any, Generator, Tuple
+from typing import Any, Generator, Optional, Tuple
 
 import requests
 from ruamel import yaml
@@ -21,7 +21,7 @@ def get_artifact_info_as_json(
     artifact: str,
     backend: str = "oci",
     skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
-    session: requests.Session | None = None,
+    session: Optional[requests.Session] = None,
 ) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
 
