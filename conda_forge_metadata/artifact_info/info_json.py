@@ -135,6 +135,12 @@ def info_json_from_tar_generator(
         elif path.name == "about.json":
             data["about"] = json.loads(_extract_read(tar, member, default="{}"))
         elif path.name == "conda_build_config.yaml":
+            assert data["conda_build_config"] == {}
+            data["conda_build_config"] = YAML.load(
+                _extract_read(tar, member, default="{}")
+            )
+        elif path.name == "variant_config.yaml":
+            assert data["conda_build_config"] == {}
             data["conda_build_config"] = YAML.load(
                 _extract_read(tar, member, default="{}")
             )
@@ -153,13 +159,21 @@ def info_json_from_tar_generator(
                 ]
             data["files"] = files
         elif path.name == "meta.yaml.template":
+            assert data["raw_recipe"] == ""
             data["raw_recipe"] = _extract_read(tar, member, default="")
         elif path.name == "meta.yaml":
             x = _extract_read(tar, member, default="{}")
             if ("{{" in x or "{%" in x) and not data["raw_recipe"]:
                 data["raw_recipe"] = x
             else:
+                assert data["rendered_recipe"] == {}
                 data["rendered_recipe"] = YAML.load(x)
+        elif path.name == "recipe.yaml":
+            assert data["raw_recipe"] == ""
+            data["raw_recipe"] = _extract_read(tar, member, default="")
+        elif path.name == "rendered_recipe.yaml":
+            assert data["rendered_recipe"] == {}
+            data["rendered_recipe"] = YAML.load(_extract_read(tar, member, default=""))
     if data["name"]:
         return data  # type: ignore
 
