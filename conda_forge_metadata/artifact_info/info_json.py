@@ -138,8 +138,15 @@ def info_json_from_tar_generator(
             data["conda_build_config"] = YAML.load(
                 _extract_read(tar, member, default="{}")
             )
-        elif path.name == "files":
-            files = _extract_read(tar, member, default="").splitlines()
+        elif path.name == "paths.json":
+            paths = json.loads(_extract_read(tar, member, default="{}"))
+            paths_version = paths.get("paths_version", 1)
+            if paths_version != 1:
+                warnings.warn(
+                    f"Unrecognized paths_version {paths_version} in paths.json",
+                    RuntimeWarning,
+                )
+            files = [p.get("_path", "") for p in paths.get("paths", [])]
             if skip_files_suffixes:
                 files = [
                     f for f in files if not f.lower().endswith(skip_files_suffixes)
