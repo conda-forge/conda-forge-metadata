@@ -68,6 +68,35 @@ def test_info_json_conda(backend: str):
 
 
 @pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
+def test_info_json_rattler_build(backend: str):
+    info = info_json.get_artifact_info_as_json(
+        "conda-forge",
+        "linux-64",
+        "jolt-physics-5.1.0-hff21bea_0.conda",
+        backend=backend,
+    )
+    assert info is not None
+    assert info["metadata_version"] == 1
+    assert info["name"] == "jolt-physics"
+    assert info["version"] == "5.1.0"
+    assert info["index"]["name"] == "jolt-physics"
+    assert info["index"]["version"] == "5.1.0"
+    assert info["index"]["build"] == "hff21bea_0"
+    assert info["index"]["subdir"] == "linux-64"
+    assert "libstdcxx >=13" in info["index"]["depends"]
+    assert "conda_version" not in info["about"]
+    assert info["rendered_recipe"]["recipe"]["package"]["name"] == "jolt-physics"
+    assert (
+        info["rendered_recipe"]["recipe"]["source"][0]["sha256"]
+        == "10fcc863ae2b9d48c2f22d8b0204034820e57a55f858b7c388ac9579d8cf4095"
+    )
+    assert info["raw_recipe"] is not None
+    assert info["raw_recipe"].startswith("context:\n")
+    assert info["conda_build_config"]["c_stdlib"] == "sysroot"
+    assert "include/Jolt/AABBTree/AABBTreeBuilder.h" in info["files"]
+
+
+@pytest.mark.parametrize("backend", info_json.VALID_BACKENDS)
 def test_info_json_conda_unlucky_test_file(backend: str):
     """
     See https://github.com/conda-forge/conda-forge-metadata/pull/36
