@@ -165,6 +165,11 @@ def info_json_from_tar_generator(
             if data["files"]:
                 continue
             files = _extract_read(tar, member, default="").splitlines()
+            if skip_files_suffixes:
+                files = [
+                    f for f in files if not f.lower().endswith(skip_files_suffixes)
+                ]
+            data["files"] = files
         elif path.name == "meta.yaml.template":
             data["raw_recipe"] = _extract_read(tar, member, default="")
         elif path.name == "meta.yaml":
