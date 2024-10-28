@@ -58,13 +58,17 @@ def get_artifact_info_as_json(
             "about": the info/about.json file contents
             "rendered_recipe": the fully rendered recipe at
                 either info/recipe/meta.yaml or info/meta.yaml
-                as a dict
+                as a dict.
+                For rattler-build recipes, we use rendered_recipe.yaml.
             "raw_recipe": the template recipe as a string from
                 info/recipe/meta.yaml.template - could be
-                the rendered recipe as a string if no template was found
+                the rendered recipe as a string if no template was found.
+                For rattler-build recipes, we use recipe.yaml.
             "conda_build_config": the conda_build_config.yaml used for building
                 the recipe at info/recipe/conda_build_config.yaml
-            "files": a list of files in the recipe from info/files with
+                For rattler-build recipes, we use variant_config.yaml instead.
+            "files": a list of files in the recipe from info/paths.json
+                (or fallback to info/files if info/paths.json doesn't exist) with
                 elements ending in .pyc or .txt filtered out.
     """
     if backend == "libcfgraph":
@@ -156,6 +160,11 @@ def info_json_from_tar_generator(
                     f for f in files if not f.lower().endswith(skip_files_suffixes)
                 ]
             data["files"] = files
+        elif path.name == "files":
+            # prefer files from paths.json if available
+            if data["files"]:
+                continue
+            files = _extract_read(tar, member, default="").splitlines()
         elif path.name == "meta.yaml.template":
             data["raw_recipe"] = _extract_read(tar, member, default="")
         elif path.name == "meta.yaml":
