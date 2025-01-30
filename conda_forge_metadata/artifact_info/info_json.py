@@ -160,7 +160,7 @@ def info_json_from_tar_generator(
                     f for f in files if not f.lower().endswith(skip_files_suffixes)
                 ]
             data["files"] = files
-        elif path.name == "files":
+        elif path.name == "files" and not data.get("files"):
             # prefer files from paths.json if available
             if data["files"]:
                 continue
