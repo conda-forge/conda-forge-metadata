@@ -170,6 +170,17 @@ def info_json_from_tar_generator(
                     f for f in files if not f.lower().endswith(skip_files_suffixes)
                 ]
             data["files"] = files
+        elif path.name == "paths.json" and not data.get("files"):
+            paths = json.loads(_extract_read(tar, member, default="[]"))
+            if (paths_version := paths.get("paths_version", 1)) > 1:
+                log.warning("paths.json version is too recent: %s", paths_version)
+                continue
+            files = [p["_path"] for p in paths.get("paths", ())]
+            if skip_files_suffixes:
+                files = [
+                    f for f in files if not f.lower().endswith(skip_files_suffixes)
+                ]
+            data["files"] = files
         elif path.name == "meta.yaml.template":
             data["raw_recipe"] = _extract_read(tar, member, default="")
         elif path.name == "meta.yaml":
