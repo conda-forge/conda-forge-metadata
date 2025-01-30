@@ -173,7 +173,10 @@ def info_json_from_tar_generator(
         elif path.name == "paths.json" and not data.get("files"):
             paths = json.loads(_extract_read(tar, member, default="[]"))
             if (paths_version := paths.get("paths_version", 1)) > 1:
-                log.warning("paths.json version is too recent: %s", paths_version)
+                warnings.warn(
+                    "paths.json version is too recent: %s" % paths_version,
+                    RuntimeWarning,
+                )
                 continue
             files = [p["_path"] for p in paths.get("paths", ())]
             if skip_files_suffixes:
