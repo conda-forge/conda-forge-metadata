@@ -23,7 +23,9 @@ def get_streamed_artifact_data(
     url = f"{channel}/{subdir}/{artifact}"
 
     session_arg = [session] if session is not None else []
-    filename, conda = conda_reader_for_url(url, *session_arg, fall_back_to_full_download=True)
+    filename, conda = conda_reader_for_url(
+        url, *session_arg, fall_back_to_full_download=True
+    )
 
     with closing(conda):
         yield from stream_conda_component(filename, conda, component="info")
