@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import hashlib
-import os
+import posixpath
 from functools import lru_cache
 
 import requests
@@ -31,14 +31,14 @@ def _import_to_pkg_maps_num_dirs() -> int:
 
 def _get_bot_sharded_path(file_path, n_dirs=5):
     """computed a sharded location for the LazyJson file."""
-    top_dir, file_name = os.path.split(file_path)
+    top_dir, file_name = posixpath.split(file_path)
 
     if len(top_dir) == 0 or top_dir == "lazy_json":
         return file_name
     else:
         hx = hashlib.sha1(file_name.encode("utf-8")).hexdigest()[0:n_dirs]
         pth_parts = [top_dir] + [hx[i] for i in range(n_dirs)] + [file_name]
-        return os.path.join(*pth_parts)
+        return posixpath.join(*pth_parts)
 
 
 @lru_cache(maxsize=128)
