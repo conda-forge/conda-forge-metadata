@@ -10,9 +10,12 @@ env:
   PY_COLORS: "1"
 
 jobs:
-  tests:
-    name: tests
-    runs-on: "ubuntu-latest"
+  tests-matrix:
+    name: tests-matrix
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -29,12 +32,13 @@ jobs:
       - name: configure conda and install code
         shell: bash -el {0}
         run: |
-          mamba install --yes \
+          conda install --yes \
             --file=requirements.txt \
             --file=requirements-dev.txt
           python -m pip install -v --no-deps --no-build-isolation -e .
 
       - name: test versions
+        if: matrix.os == 'ubuntu-latest'
         shell: bash -el {0}
         run: |
           pip uninstall conda-forge-metadata --yes
@@ -63,9 +67,12 @@ jobs:
         run: |
           pytest -vvs tests
 
-  tests-pypi:
-    name: tests-pypi
-    runs-on: "ubuntu-latest"
+  tests-pypi-matrix:
+    name: tests-pypi-matrix
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -86,3 +93,11 @@ jobs:
       - name: test
         run: |
           pytest -vvs tests
+
+  # dummy test to aggregate status of matrix jobs above
+  tests:
+    name: tests
+    needs: [tests-matrix, tests-pypi-matrix]
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0
