@@ -10,9 +10,12 @@ env:
   PY_COLORS: "1"
 
 jobs:
-  tests:
+  tests-matrix:
     name: tests
-    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -35,6 +38,7 @@ jobs:
           python -m pip install -v --no-deps --no-build-isolation -e .
 
       - name: test versions
+        if: matrix.os == 'ubuntu-latest'
         shell: bash -el {0}
         run: |
           pip uninstall conda-forge-metadata --yes
@@ -62,6 +66,13 @@ jobs:
         shell: bash -el {0}
         run: |
           pytest -vvs tests
+
+  tests:
+    name: tests
+    needs: tests-matrix
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0
 
   tests-pypi-matrix:
     name: tests-pypi
