@@ -98,6 +98,6 @@ jobs:
   tests:
     name: tests
     needs: [tests-matrix, tests-pypi-matrix]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - run: exit 0
