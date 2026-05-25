@@ -3,7 +3,7 @@ import pytest
 from conda_forge_metadata import repodata
 
 
-@pytest.xfail(
+@pytest.mark.xfail(
     reason="See https://github.com/conda-forge/conda-forge-metadata/issues/97"
 )
 def test_labels_anaconda_org(monkeypatch):  # type: ignore
