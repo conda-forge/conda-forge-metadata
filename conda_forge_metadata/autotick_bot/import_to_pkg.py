@@ -6,7 +6,9 @@ from functools import lru_cache
 
 import requests
 
-AUTOTICK_BOT_GITHUB_BASE_URL = "https://github.com/regro/cf-graph-countyfair/raw/master"
+AUTOTICK_BOT_GITHUB_BASE_URL = (
+    "https://github.com/conda-forge/autotick-bot-graph/raw/main"
+)
 
 
 @lru_cache(maxsize=1)
@@ -30,7 +32,7 @@ def _import_to_pkg_maps_num_dirs() -> int:
 
 
 def _get_bot_sharded_path(file_path, n_dirs=5):
-    """computed a sharded location for the LazyJson file."""
+    """Computed a sharded location for the LazyJson file."""
     top_dir, file_name = posixpath.split(file_path)
 
     if len(top_dir) == 0 or top_dir == "lazy_json":
@@ -85,6 +87,7 @@ def get_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
         valid if `packages` is not None. This name will be the
         top-level import with all subpackages removed (e.g., foo.bar.baz
         will be returned as foo).
+
     """
     import_name = import_name.split(".")[0]
     supplying_pkgs = _get_pkgs_for_import(import_name)
@@ -94,8 +97,8 @@ def get_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
 @lru_cache(maxsize=1)
 def _ranked_hubs_authorities() -> list[str]:
     req = requests.get(
-        "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
-        "master/ranked_hubs_authorities.json"
+        "https://raw.githubusercontent.com/conda-forge/autotick-bot-graph/"
+        "main/ranked_hubs_authorities.json"
     )
     req.raise_for_status()
     return req.json()
@@ -113,6 +116,7 @@ def map_import_to_package(import_name: str) -> str:
     -------
     pkg_name : str
         The name of the package.
+
     """
     supplying_pkgs, found_import_name = get_pkgs_for_import(import_name)
     if supplying_pkgs is None:

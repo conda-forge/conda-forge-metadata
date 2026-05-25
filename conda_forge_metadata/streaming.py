@@ -1,9 +1,6 @@
-"""
-Use conda-package-streaming to fetch package metadata
-"""
+"""Use conda-package-streaming to fetch package metadata"""
 
 from contextlib import closing
-from typing import Optional
 
 import requests
 from conda_package_streaming.package_streaming import stream_conda_component
@@ -11,7 +8,7 @@ from conda_package_streaming.url import conda_reader_for_url
 
 
 def get_streamed_artifact_data(
-    channel: str, subdir: str, artifact: str, session: Optional[requests.Session] = None
+    channel: str, subdir: str, artifact: str, session: requests.Session | None = None
 ):
     if not channel.startswith("http"):
         if channel in ("pkgs/main", "pkgs/r", "pkgs/msys2"):

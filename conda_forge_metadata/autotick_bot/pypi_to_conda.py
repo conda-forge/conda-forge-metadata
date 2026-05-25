@@ -13,8 +13,8 @@ if typing.TYPE_CHECKING:
 @lru_cache(maxsize=1)
 def get_pypi_name_mapping() -> list[NameMappingEntry]:
     req = requests.get(
-        "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
-        "master/mappings/pypi/name_mapping.yaml"
+        "https://raw.githubusercontent.com/conda-forge/autotick-bot-graph/"
+        "main/mappings/pypi/name_mapping.yaml"
     )
     req.raise_for_status()
     return yaml.YAML(typ="safe").load(req.text)
@@ -23,8 +23,8 @@ def get_pypi_name_mapping() -> list[NameMappingEntry]:
 @lru_cache(maxsize=1)
 def get_grayskull_pypi_mapping() -> dict[PypiPackageName, NameMappingEntry]:
     req = requests.get(
-        "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
-        "master/mappings/pypi/grayskull_pypi_mapping.json"
+        "https://raw.githubusercontent.com/conda-forge/autotick-bot-graph/"
+        "main/mappings/pypi/grayskull_pypi_mapping.json"
     )
     req.raise_for_status()
     return req.json()
@@ -42,6 +42,7 @@ def map_pypi_to_conda(pypi_name: PypiPackageName) -> CondaPackageName:
     -------
     conda_name : str
         The most likely Conda name.
+
     """
     pypi_map = get_grayskull_pypi_mapping()
     return pypi_map.get(pypi_name, {}).get("conda_name", pypi_name.lower())

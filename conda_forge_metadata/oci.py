@@ -1,6 +1,6 @@
 import tarfile
+from collections.abc import Generator
 from logging import getLogger
-from typing import Generator
 
 from conda_oci_mirror.repo import PackageRepo
 
@@ -54,6 +54,7 @@ def get_oci_artifact_data(
                 elements ending in .pyc or .txt filtered out.
 
         If the artifact is not indexed, it returns None.
+
     """
     if artifact.endswith(".tar.bz2"):
         artifact = artifact[: -len(".tar.bz2")]

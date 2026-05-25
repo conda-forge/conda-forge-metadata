@@ -24,6 +24,7 @@ dependencies = [
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
+requires-python = ">=3.10"
 
 [project.optional-dependencies]
 oci = [
@@ -37,8 +38,10 @@ home = "https://github.com/conda-forge/conda-forge-metadata"
 write_to = "conda_forge_metadata/_version.py"
 write_to_template = "__version__ = '{version}'\n"
 
-[tool.black]
-line-length = 88
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "LOG", "G"]
+ignore = ["E501", "D205"]
+preview = true
 
-[tool.isort]
-profile = "black"
+[tool.ruff.lint.pycodestyle]
+max-line-length = 88
