@@ -27,7 +27,7 @@ jobs:
           channel-priority: strict
           show-channel-urls: true
           miniforge-version: latest
-          python-version: 3.10
+          python-version: "3.10"
 
       - name: configure conda and install code
         shell: bash -el {0}
