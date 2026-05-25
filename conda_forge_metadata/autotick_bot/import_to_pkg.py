@@ -6,7 +6,9 @@ from functools import lru_cache
 
 import requests
 
-AUTOTICK_BOT_GITHUB_BASE_URL = "https://github.com/regro/cf-graph-countyfair/raw/master"
+AUTOTICK_BOT_GITHUB_BASE_URL = (
+    "https://github.com/conda-forge/autotick-bot-graph/raw/main"
+)
 
 
 @lru_cache(maxsize=1)
@@ -94,8 +96,8 @@ def get_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
 @lru_cache(maxsize=1)
 def _ranked_hubs_authorities() -> list[str]:
     req = requests.get(
-        "https://raw.githubusercontent.com/regro/cf-graph-countyfair/"
-        "master/ranked_hubs_authorities.json"
+        "https://raw.githubusercontent.com/conda-forge/autotick-bot-graph/"
+        "main/ranked_hubs_authorities.json"
     )
     req.raise_for_status()
     return req.json()
