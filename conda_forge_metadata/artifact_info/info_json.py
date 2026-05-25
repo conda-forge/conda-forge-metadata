@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 import tarfile
 import warnings
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Generator, Optional, Tuple
+from typing import Any
 
 import requests
 from ruamel import yaml
@@ -20,8 +21,8 @@ def get_artifact_info_as_json(
     subdir: str,
     artifact: str,
     backend: str = "oci",
-    skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
-    session: Optional[requests.Session] = None,
+    skip_files_suffixes: tuple[str, ...] = (".pyc", ".txt"),
+    session: requests.Session | None = None,
 ) -> ArtifactData | None:
     """Get a blob of artifact data from the conda info directory.
 
@@ -70,6 +71,7 @@ def get_artifact_info_as_json(
             "files": a list of files in the recipe from info/paths.json
                 (or fallback to info/files if info/paths.json doesn't exist) with
                 elements ending in .pyc or .txt filtered out.
+
     """
     if backend == "libcfgraph":
         warnings.simplefilter("always", DeprecationWarning)
@@ -106,8 +108,8 @@ def get_artifact_info_as_json(
 
 
 def info_json_from_tar_generator(
-    tar_tuples: Generator[Tuple[tarfile.TarFile, tarfile.TarInfo], None, None],
-    skip_files_suffixes: Tuple[str, ...] = (".pyc", ".txt"),
+    tar_tuples: Generator[tuple[tarfile.TarFile, tarfile.TarInfo], None, None],
+    skip_files_suffixes: tuple[str, ...] = (".pyc", ".txt"),
 ) -> ArtifactData | None:
     # https://github.com/regro/libcflib/blob/062858e90af/libcflib/harvester.py#L14
     data = {

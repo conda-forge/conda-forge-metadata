@@ -1,7 +1,7 @@
 import time
 from fnmatch import fnmatch
 from functools import lru_cache
-from typing import Any, List, TypedDict
+from typing import Any, TypedDict
 
 import requests
 from ruamel.yaml import YAML
@@ -31,8 +31,7 @@ def feedstock_outputs_config() -> FeedstockOutputsConfig:
 
 
 def sharded_path(name: CondaPackageName) -> str:
-    """
-    Get the path to the sharded JSON path in the feedstock_outputs repository.
+    """Get the path to the sharded JSON path in the feedstock_outputs repository.
 
     Parameters
     ----------
@@ -43,6 +42,7 @@ def sharded_path(name: CondaPackageName) -> str:
     -------
     path : str
         The path to the sharded JSON file. Leading slash is omitted.
+
     """
     # See https://github.com/conda-forge/feedstock-outputs/
     #     blob/c35451f2fb8b7/scripts/shard_repo.py
@@ -83,7 +83,7 @@ fetch_allowed_autoreg_feedstock_globs.cache_clear = (
 @lru_cache(maxsize=1024)
 def _package_to_feedstock(
     name: CondaPackageName, time_int: int, **request_kwargs: Any
-) -> List[str]:
+) -> list[str]:
     assert name, "name must not be empty"
 
     feedstocks = set()
@@ -107,7 +107,7 @@ def _package_to_feedstock(
     return list(feedstocks)
 
 
-def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> List[str]:
+def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> list[str]:
     """Map a package name to the feedstock name(s).
 
     Parameters
@@ -121,6 +121,7 @@ def package_to_feedstock(name: CondaPackageName, **request_kwargs: Any) -> List[
     -------
     feedstock : list of str
         The name of the feedstock, without the ``-feedstock`` suffix.
+
     """
     return _package_to_feedstock(name, int(time.monotonic()) // 120, **request_kwargs)
 

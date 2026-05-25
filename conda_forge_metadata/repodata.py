@@ -1,16 +1,15 @@
-"""
-Utilities to deal with repodata
-"""
+"""Utilities to deal with repodata"""
 
 import bz2
 import json
 import os
+from collections.abc import Generator, Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 from itertools import product
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, List, Tuple, Union
+from typing import Any
 from urllib.request import urlretrieve
 
 import bs4
@@ -32,7 +31,7 @@ CACHE_DIR = Path(".repodata_cache")
 
 
 @lru_cache
-def all_labels(use_remote_cache: bool = False) -> List[str]:
+def all_labels(use_remote_cache: bool = False) -> list[str]:
     if use_remote_cache:
         r = requests.get(
             "https://raw.githubusercontent.com/conda-forge/"
@@ -69,9 +68,9 @@ def all_labels(use_remote_cache: bool = False) -> List[str]:
 def fetch_repodata(
     subdirs: Iterable[str] = SUBDIRS,
     force_download: bool = False,
-    cache_dir: Union[str, Path] = CACHE_DIR,
+    cache_dir: str | Path = CACHE_DIR,
     label: str = "main",
-) -> List[Path]:
+) -> list[Path]:
     assert all(subdir in SUBDIRS for subdir in subdirs)
     paths = []
     for subdir in subdirs:
@@ -86,7 +85,7 @@ def fetch_repodata(
         local_fn_bz2 = Path(str(local_fn) + ".bz2")
         paths.append(local_fn)
         if force_download or not local_fn.exists():
-            logger.info(f"Downloading {repodata} to {local_fn}")
+            logger.info("Downloading %s to %s", repodata, local_fn)
             local_fn.parent.mkdir(parents=True, exist_ok=True)
             # Download the file
             urlretrieve(f"{repodata}.bz2", local_fn_bz2)
@@ -97,15 +96,15 @@ def fetch_repodata(
 
 
 def list_artifacts(
-    repodata_jsons: Iterable[Union[str, Path]],
+    repodata_jsons: Iterable[str | Path],
     include_broken: bool = True,
 ) -> Generator[str, None, None]:
     for repodata in sorted(repodata_jsons):
         repodata = Path(repodata)
         subdir = repodata.stem.split(".")[0]
-        assert (
-            subdir in SUBDIRS
-        ), "Invalid repodata file name. Must be '<subdir>.<label>.json'."
+        assert subdir in SUBDIRS, (
+            "Invalid repodata file name. Must be '<subdir>.<label>.json'."
+        )
         data = json.loads(repodata.read_text())
         keys = ["packages", "packages.conda"]
         if include_broken:
@@ -115,15 +114,14 @@ def list_artifacts(
                 yield f"{subdir}/{pkg}"
 
 
-def repodata(subdir: str) -> Dict[str, Any]:
+def repodata(subdir: str) -> dict[str, Any]:
     assert subdir in SUBDIRS
     path = fetch_repodata(subdirs=(subdir,))[0]
     return json.loads(path.read_text())
 
 
-def n_artifacts(labels: Iterable[str] = ("main",)) -> Tuple[int, int]:
-    """
-    To get _all_ artifacts ever published, use `n_artifacts(all_labels())`.
+def n_artifacts(labels: Iterable[str] = ("main",)) -> tuple[int, int]:
+    """To get _all_ artifacts ever published, use `n_artifacts(all_labels())`.
 
     Returns number of artifacts and number of unique package names.
     """

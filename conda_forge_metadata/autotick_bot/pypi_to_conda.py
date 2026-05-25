@@ -42,6 +42,7 @@ def map_pypi_to_conda(pypi_name: PypiPackageName) -> CondaPackageName:
     -------
     conda_name : str
         The most likely Conda name.
+
     """
     pypi_map = get_grayskull_pypi_mapping()
     return pypi_map.get(pypi_name, {}).get("conda_name", pypi_name.lower())

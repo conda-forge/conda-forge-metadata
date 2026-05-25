@@ -96,6 +96,7 @@ def get_libcfgraph_artifact_data(
                 elements ending in .pyc or .txt filtered out.
 
         If the artifact is not indexed, it returns None.
+
     """
     # urls look like this:
     # https://raw.githubusercontent.com/regro/libcfgraph/master/
@@ -106,7 +107,7 @@ def get_libcfgraph_artifact_data(
     else:
         nm = artifact[: -len(".conda")]
 
-    libcfgraph_path = "artifacts/" f"{nm_parts[0]}/{channel}/{subdir}/{nm}.json"
+    libcfgraph_path = f"artifacts/{nm_parts[0]}/{channel}/{subdir}/{nm}.json"
     if libcfgraph_path in get_libcfgraph_index():
         url = (
             "https://raw.githubusercontent.com/regro/libcfgraph/master/"
@@ -179,6 +180,7 @@ def get_libcfgraph_pkgs_for_import(import_name: str) -> tuple[set[str] | None, s
         valid if `packages` is not None. This name will be the
         top-level import with all subpackages removed (e.g., foo.bar.baz
         will be returned as foo).
+
     """
     import_name = import_name.split(".")[0]
     supplying_pkgs = _get_libcfgraph_pkgs_for_import(import_name)
