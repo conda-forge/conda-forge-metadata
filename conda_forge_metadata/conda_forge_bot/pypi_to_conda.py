@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 @lru_cache(maxsize=1)
 def get_pypi_name_mapping() -> list[NameMappingEntry]:
     req = requests.get(
-        "https://raw.githubusercontent.com/conda-forge/autotick-bot-graph/"
+        "https://raw.githubusercontent.com/conda-forge/conda-forge-bot-data/"
         "main/mappings/pypi/name_mapping.yaml"
     )
     req.raise_for_status()
@@ -23,7 +23,7 @@ def get_pypi_name_mapping() -> list[NameMappingEntry]:
 @lru_cache(maxsize=1)
 def get_grayskull_pypi_mapping() -> dict[PypiPackageName, NameMappingEntry]:
     req = requests.get(
-        "https://raw.githubusercontent.com/conda-forge/autotick-bot-graph/"
+        "https://raw.githubusercontent.com/conda-forge/conda-forge-bot-data/"
         "main/mappings/pypi/grayskull_pypi_mapping.json"
     )
     req.raise_for_status()
