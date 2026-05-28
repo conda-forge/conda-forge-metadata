@@ -1,4 +1,4 @@
-from conda_forge_metadata.autotick_bot import get_pkgs_for_import, map_import_to_package
+from conda_forge_metadata.conda_forge_bot import get_pkgs_for_import, map_import_to_package
 
 
 def test_map_import_to_package():
