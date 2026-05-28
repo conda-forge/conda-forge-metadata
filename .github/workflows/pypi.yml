@@ -43,7 +43,7 @@ jobs:
           path: dist/
 
   publish:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     if: github.event_name == 'release'
     needs: [build]
     permissions:
