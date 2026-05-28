@@ -8,6 +8,12 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'tag to publish to pypi'
+        required: true
+        type: string
 
 jobs:
   build:
@@ -25,6 +31,10 @@ jobs:
 
       - name: Install build tools
         run: python -m pip install --upgrade pip wheel setuptools setuptools_scm build twine
+
+      - name: check out tag if needed
+        if: github.event_name == 'workflow_dispatch'
+        run: git checkout ${{ inputs.tag }}
 
       - name: Build wheels
         run: python -m build --sdist --wheel . --outdir dist
