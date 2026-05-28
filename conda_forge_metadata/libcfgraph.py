@@ -151,7 +151,7 @@ def _get_libcfgraph_pkgs_for_import(import_name: str) -> set[str] | None:
     reason=(
         "conda-forge no longer maintains the libcfgraph metadata store. "
         "This API will be removed in a future release. "
-        "Use conda_forge_metdata.autotick_bot.get_pks_for_import instead."
+        "Use conda_forge_metdata.conda_forge_bot.get_pks_for_import instead."
     )
 )
 def get_libcfgraph_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
@@ -161,7 +161,7 @@ def get_libcfgraph_pkgs_for_import(import_name: str) -> tuple[set[str] | None, s
 
     For a better guess, use the function
 
-        `conda_forge_metadata.autotick_bot.map_import_to_package`
+        `conda_forge_metadata.conda_forge_bot.map_import_to_package`
 
     which attempts to return the most likely supplying package.
 

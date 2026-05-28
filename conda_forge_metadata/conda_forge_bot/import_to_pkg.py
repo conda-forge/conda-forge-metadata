@@ -6,15 +6,15 @@ from functools import lru_cache
 
 import requests
 
-AUTOTICK_BOT_GITHUB_BASE_URL = (
-    "https://github.com/conda-forge/autotick-bot-graph/raw/main"
+CONDA_FORGE_BOT_GITHUB_BASE_URL = (
+    "https://github.com/conda-forge/conda-forge-bot-data/raw/main"
 )
 
 
 @lru_cache(maxsize=1)
 def _import_to_pkg_maps_num_letters() -> int:
     req = requests.get(
-        f"{AUTOTICK_BOT_GITHUB_BASE_URL}"
+        f"{CONDA_FORGE_BOT_GITHUB_BASE_URL}"
         "/import_to_pkg_maps/import_to_pkg_maps_meta.json"
     )
     req.raise_for_status()
@@ -24,7 +24,7 @@ def _import_to_pkg_maps_num_letters() -> int:
 @lru_cache(maxsize=1)
 def _import_to_pkg_maps_num_dirs() -> int:
     req = requests.get(
-        f"{AUTOTICK_BOT_GITHUB_BASE_URL}"
+        f"{CONDA_FORGE_BOT_GITHUB_BASE_URL}"
         "/import_to_pkg_maps/import_to_pkg_maps_meta.json"
     )
     req.raise_for_status()
@@ -49,7 +49,7 @@ def _import_to_pkg_maps_cache(import_first_letters: str) -> dict[str, set[str]]:
         f"import_to_pkg_maps/{import_first_letters.lower()}.json",
         n_dirs=_import_to_pkg_maps_num_dirs(),
     )
-    req = requests.get(f"{AUTOTICK_BOT_GITHUB_BASE_URL}/{pth}")
+    req = requests.get(f"{CONDA_FORGE_BOT_GITHUB_BASE_URL}/{pth}")
     req.raise_for_status()
     return {k: set(v["elements"]) for k, v in req.json().items()}
 
@@ -68,7 +68,7 @@ def get_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
 
     For a better guess, use the function
 
-        `conda_forge_metadata.autotick_bot.map_import_to_package`
+        `conda_forge_metadata.conda_forge_bot.map_import_to_package`
 
     which attempts to return the most likely supplying package.
 
@@ -97,7 +97,7 @@ def get_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
 @lru_cache(maxsize=1)
 def _ranked_hubs_authorities() -> list[str]:
     req = requests.get(
-        "https://raw.githubusercontent.com/conda-forge/autotick-bot-graph/"
+        "https://raw.githubusercontent.com/conda-forge/conda-forge-bot-data/"
         "main/ranked_hubs_authorities.json"
     )
     req.raise_for_status()
