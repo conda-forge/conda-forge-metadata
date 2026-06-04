@@ -100,10 +100,15 @@ def fetch_repodata(
 def iter_repodatas(
     repodata_jsons: Iterable[str | Path],
     include_broken: bool = True,
-) -> Iterable[tuple[str, str, dict[str, object]]]:
+) -> Iterable[tuple[str, str, str, dict[str, object]]]:
+    """
+    Repodata JSON filenames MUST be `{subdir}.{label}.json`.
+
+    Yields label, subdir, filename, record tuples
+    """
     for repodata in sorted(repodata_jsons):
         repodata = Path(repodata)
-        subdir = repodata.stem.split(".")[0]
+        subdir, label, *_ = repodata.stem.split(".")
         assert subdir in SUBDIRS, (
             "Invalid repodata file name. Must be '<subdir>.<label>.json'."
         )
@@ -113,7 +118,7 @@ def iter_repodatas(
             keys.append("removed")
         for key in keys:
             for fn, record in data.get(key, {}).items():
-                yield subdir, fn, record
+                yield label, subdir, fn, record
 
 
 def list_artifacts(
@@ -123,9 +128,9 @@ def list_artifacts(
     """
     Deprecated.
 
-    Use iter_repodatas() and join the first two items of each tuple.
+    Use iter_repodatas() and join the 2nd and 3rd items of each tuple.
     """
-    for subdir, fn, _ in iter_repodatas(
+    for _, subdir, fn, _ in iter_repodatas(
         repodata_jsons=repodata_jsons, include_broken=include_broken
     ):
         yield f"{subdir}/{fn}"
@@ -164,9 +169,9 @@ def aggregated(
             futures.append(future)
         for future in as_completed(futures):
             repodatas = future.result()
-            for subdir, fn, record in iter_repodatas(repodatas, include_broken=True):
+            for label, subdir, fn, record in iter_repodatas(repodatas, include_broken=True):
                 if with_artifacts:
-                    seen_artifacts.add(f"{subdir}/{fn}")
+                    seen_artifacts.add(f"{label}/{subdir}/{fn}/{record.get('sha256') or record.get('md5')}")
                 if with_names:
                     seen_names.add(record["name"])
                 if with_size:
