@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any, Literal
 from urllib.request import urlretrieve
 
-import bs4
 import requests
 
 logger = getLogger(__name__)
@@ -50,21 +49,8 @@ def all_labels(use_remote_cache: bool = False) -> list[str]:
 
         return sorted(label for label in label_info if "/" not in label)
 
-    logger.info("No token detected. Fetching labels from anaconda.org HTML. Slow...")
-    r = requests.get("https://anaconda.org/conda-forge/repo")
-    r.raise_for_status()
-    html = r.text
-    soup = bs4.BeautifulSoup(html, "html.parser")
-    labels = []
-    len_prefix = len("/conda-forge/repo?label=")
-    for element in soup.select("ul#Label > li > a"):
-        href = element.get("href")
-        if not href:
-            continue
-        label = href[len_prefix:]
-        if label and label not in ("all", "empty") and "/" not in label:
-            labels.append(label)
-    return sorted(labels)
+    logger.warning("Could not fetch all labels; returning 'main' only as a fallback")
+    return ["main"]
 
 
 def fetch_repodata(

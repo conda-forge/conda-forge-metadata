@@ -18,7 +18,6 @@ dependencies = [
     "requests",
     "ruamel.yaml",
     "typing-extensions",
-    "beautifulsoup4",
     "conda-oci-mirror",
     "conda_package_streaming >=0.12.0"
 ]
