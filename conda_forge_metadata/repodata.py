@@ -144,6 +144,7 @@ def n_artifacts(labels: Iterable[str] = ("main",)) -> tuple[int, int]:
 def aggregated(
     reports: Iterable[Literal["artifacts", "names", "size"]],
     labels: Iterable[str] = ("main",),
+    include_broken: bool = True,
 ) -> dict[str, int]:
     with_artifacts = "artifacts" in reports
     with_names = "names" in reports
@@ -157,7 +158,7 @@ def aggregated(
         for future in as_completed(futures):
             repodatas = future.result()
             for label, subdir, fn, record in _iter_repodatas(
-                repodatas, include_broken=True
+                repodatas, include_broken=include_broken
             ):
                 if with_artifacts:
                     seen_artifacts.add(
