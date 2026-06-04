@@ -97,7 +97,7 @@ def fetch_repodata(
     return paths
 
 
-def iter_repodatas(
+def _iter_repodatas(
     repodata_jsons: Iterable[str | Path],
     include_broken: bool = True,
 ) -> Iterable[tuple[str, str, str, dict[str, object]]]:
@@ -125,12 +125,7 @@ def list_artifacts(
     repodata_jsons: Iterable[str | Path],
     include_broken: bool = True,
 ) -> Iterable[str]:
-    """
-    Deprecated.
-
-    Use iter_repodatas() and join the 2nd and 3rd items of each tuple.
-    """
-    for _, subdir, fn, _ in iter_repodatas(
+    for _, subdir, fn, _ in _iter_repodatas(
         repodata_jsons=repodata_jsons, include_broken=include_broken
     ):
         yield f"{subdir}/{fn}"
@@ -169,9 +164,13 @@ def aggregated(
             futures.append(future)
         for future in as_completed(futures):
             repodatas = future.result()
-            for label, subdir, fn, record in iter_repodatas(repodatas, include_broken=True):
+            for label, subdir, fn, record in _iter_repodatas(
+                repodatas, include_broken=True
+            ):
                 if with_artifacts:
-                    seen_artifacts.add(f"{label}/{subdir}/{fn}/{record.get('sha256') or record.get('md5')}")
+                    seen_artifacts.add(
+                        f"{label}/{subdir}/{fn}/{record.get('sha256') or record.get('md5')}"
+                    )
                 if with_names:
                     seen_names.add(record["name"])
                 if with_size:
