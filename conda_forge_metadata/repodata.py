@@ -125,7 +125,7 @@ def repodata(subdir: str) -> dict[str, Any]:
 
 def n_artifacts(labels: Iterable[str] = ("main",)) -> tuple[int, int]:
     """
-    Deprecated.
+    Deprecated. Use `aggregated(reports=["artifacts", "names"]).values()`.
 
     To get _all_ artifacts ever published, use `n_artifacts(all_labels())`.
 
