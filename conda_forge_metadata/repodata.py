@@ -90,7 +90,9 @@ def _iter_repodatas(
     """
     Repodata JSON filenames MUST be `{subdir}.{label}.json`.
 
-    Yields label, subdir, filename, record tuples
+    Yields label, subdir, filename, record tuples.
+
+    Note: When include_broken is True, some records may be empty.
     """
     for repodata in sorted(repodata_jsons):
         repodata = Path(repodata)
@@ -103,8 +105,12 @@ def _iter_repodatas(
         if include_broken:
             keys.append("removed")
         for key in keys:
-            for fn, record in data.get(key, {}).items():
-                yield label, subdir, fn, record
+            if key == "removed":
+                for fn in data.get(key, ()):
+                    yield label, subdir, fn, {}
+            else:
+                for fn, record in data.get(key, {}).items():
+                    yield label, subdir, fn, record
 
 
 def list_artifacts(
@@ -155,10 +161,10 @@ def aggregated(
             ):
                 if with_artifacts:
                     seen_artifacts.add(
-                        f"{label}/{subdir}/{fn}/{record.get('sha256') or record.get('md5')}"
+                        f"{label}/{subdir}/{fn}/{record.get('sha256') or record.get('md5') or ''}"
                     )
                 if with_names:
-                    seen_names.add(record["name"])
+                    seen_names.add(record.get("name") or fn.rsplit("-", 2)[0])
                 if with_size:
                     size += record.get("size") or 0  # type: ignore
 
