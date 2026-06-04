@@ -12,3 +12,11 @@ def test_labels_anaconda_org(monkeypatch):  # type: ignore
     assert len(labels) >= 20
     assert "main" in labels
     assert "broken" in labels
+
+
+def test_aggregated():
+    reports = ["artifacts", "names", "size"]
+    result = repodata.aggregated(reports=reports, labels=("hsp2_dev",))  # type: ignore
+    assert reports == list(result.keys())
+    for key, value in result.items():
+        assert value > 0, f"{key}={value}"

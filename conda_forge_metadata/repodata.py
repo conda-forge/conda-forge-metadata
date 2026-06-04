@@ -1,15 +1,17 @@
 """Utilities to deal with repodata"""
 
+from __future__ import annotations
+
 import bz2
 import json
 import os
-from collections.abc import Generator, Iterable
+from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 from itertools import product
 from logging import getLogger
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from urllib.request import urlretrieve
 
 import requests
@@ -81,13 +83,18 @@ def fetch_repodata(
     return paths
 
 
-def list_artifacts(
+def _iter_repodatas(
     repodata_jsons: Iterable[str | Path],
     include_broken: bool = True,
-) -> Generator[str, None, None]:
+) -> Iterable[tuple[str, str, str, dict[str, object]]]:
+    """
+    Repodata JSON filenames MUST be `{subdir}.{label}.json`.
+
+    Yields label, subdir, filename, record tuples
+    """
     for repodata in sorted(repodata_jsons):
         repodata = Path(repodata)
-        subdir = repodata.stem.split(".")[0]
+        subdir, label, *_ = repodata.stem.split(".")
         assert subdir in SUBDIRS, (
             "Invalid repodata file name. Must be '<subdir>.<label>.json'."
         )
@@ -96,8 +103,18 @@ def list_artifacts(
         if include_broken:
             keys.append("removed")
         for key in keys:
-            for pkg in data.get(key, ()):
-                yield f"{subdir}/{pkg}"
+            for fn, record in data.get(key, {}).items():
+                yield label, subdir, fn, record
+
+
+def list_artifacts(
+    repodata_jsons: Iterable[str | Path],
+    include_broken: bool = True,
+) -> Iterable[str]:
+    for _, subdir, fn, _ in _iter_repodatas(
+        repodata_jsons=repodata_jsons, include_broken=include_broken
+    ):
+        yield f"{subdir}/{fn}"
 
 
 def repodata(subdir: str) -> dict[str, Any]:
@@ -107,11 +124,25 @@ def repodata(subdir: str) -> dict[str, Any]:
 
 
 def n_artifacts(labels: Iterable[str] = ("main",)) -> tuple[int, int]:
-    """To get _all_ artifacts ever published, use `n_artifacts(all_labels())`.
+    """
+    Deprecated. Use `aggregated(reports=["artifacts", "names"]).values()`.
+
+    To get _all_ artifacts ever published, use `n_artifacts(all_labels())`.
 
     Returns number of artifacts and number of unique package names.
     """
-    seen_artifacts, seen_package_names = set(), set()
+    result = aggregated(reports=["artifacts", "names"], labels=labels)
+    return result["artifacts"], result["names"]
+
+
+def aggregated(
+    reports: Iterable[Literal["artifacts", "names", "size"]],
+    labels: Iterable[str] = ("main",),
+) -> dict[str, int]:
+    with_artifacts = "artifacts" in reports
+    with_names = "names" in reports
+    with_size = "size" in reports
+    seen_artifacts, seen_names, size = set(), set(), 0
     futures = []
     with ThreadPoolExecutor(max_workers=10) as executor:
         for label, subdir in product(labels, SUBDIRS):
@@ -119,9 +150,24 @@ def n_artifacts(labels: Iterable[str] = ("main",)) -> tuple[int, int]:
             futures.append(future)
         for future in as_completed(futures):
             repodatas = future.result()
-            artifacts = list_artifacts(repodatas, include_broken=True)
-            for artifact in artifacts:
-                seen_artifacts.add(artifact)
-                seen_package_names.add(artifact.split("/")[-1].rsplit("-", 2)[0])
+            for label, subdir, fn, record in _iter_repodatas(
+                repodatas, include_broken=True
+            ):
+                if with_artifacts:
+                    seen_artifacts.add(
+                        f"{label}/{subdir}/{fn}/{record.get('sha256') or record.get('md5')}"
+                    )
+                if with_names:
+                    seen_names.add(record["name"])
+                if with_size:
+                    size += record.get("size") or 0  # type: ignore
 
-    return len(seen_artifacts), len(seen_package_names)
+    result: dict[str, int] = {}
+    if with_artifacts:
+        result["artifacts"] = len(seen_artifacts)
+    if with_names:
+        result["names"] = len(seen_names)
+    if with_size:
+        result["size"] = size
+
+    return result
