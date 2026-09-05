@@ -122,11 +122,11 @@ def map_import_to_package(import_name: str) -> str:
     if supplying_pkgs is None:
         return found_import_name
 
-    if found_import_name in supplying_pkgs:
+    if len(supplying_pkgs) == 1:
+        return supplying_pkgs[0]
+    elif found_import_name in supplying_pkgs:
         # heuristic that import scipy comes from scipy
         return found_import_name
-    elif len(supplying_pkgs) == 1:
-        return supplying_pkgs[0]
     else:
         hubs_auths = _ranked_hubs_authorities()
         return next(
