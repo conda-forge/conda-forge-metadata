@@ -6,12 +6,23 @@ import pytest
 from conda_forge_metadata import repodata
 
 
-@pytest.mark.xfail(
-    reason="See https://github.com/conda-forge/conda-forge-metadata/issues/97"
+@pytest.mark.parametrize(
+    "use_remote_cache",
+    [
+        True,
+        pytest.param(
+            False,
+            marks=[
+                pytest.mark.xfail(
+                    reason="See https://github.com/conda-forge/conda-forge-metadata/issues/97"
+                )
+            ],
+        ),
+    ],
 )
-def test_labels_anaconda_org(monkeypatch):  # type: ignore
+def test_labels_anaconda_org(monkeypatch, use_remote_cache):  # type: ignore
     monkeypatch.delenv("BINSTAR_TOKEN", raising=False)
-    labels = repodata.all_labels()
+    labels = repodata.all_labels(use_remote_cache=use_remote_cache)
     assert len(labels) >= 20
     assert "main" in labels
     assert "broken" in labels

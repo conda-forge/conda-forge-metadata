@@ -58,7 +58,8 @@ def _get_pkgs_for_import(import_name: str) -> set[str] | None:
     num_letters = _import_to_pkg_maps_num_letters()
     fllt = import_name[: min(len(import_name), num_letters)]
     import_to_pkg_map = _import_to_pkg_maps_cache(fllt)
-    return import_to_pkg_map.get(import_name, None)
+    val = import_to_pkg_map.get(import_name, None)
+    return val.copy() if val is not None else val
 
 
 def get_pkgs_for_import(import_name: str) -> tuple[set[str] | None, str]:
@@ -122,7 +123,9 @@ def map_import_to_package(import_name: str) -> str:
     if supplying_pkgs is None:
         return found_import_name
 
-    if found_import_name in supplying_pkgs:
+    if len(supplying_pkgs) == 1:
+        return supplying_pkgs.pop()
+    elif found_import_name in supplying_pkgs:
         # heuristic that import scipy comes from scipy
         return found_import_name
     else:
