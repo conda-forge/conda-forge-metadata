@@ -27,12 +27,14 @@ def test_get_pkgs_for_import():
 
     # something bespoke
     pkgs, nm = get_pkgs_for_import("sxdes")
+    print(pkgs, nm)
     assert pkgs is not None
     assert nm == "sxdes"
     assert "des-sxdes" in pkgs
     assert len(pkgs) == 1
 
     pkgs, nm = get_pkgs_for_import("scipy")
+    print(pkgs, nm)
     assert pkgs is not None
     assert nm == "scipy"
     assert "scipy" in pkgs
