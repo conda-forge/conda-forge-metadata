@@ -123,7 +123,7 @@ def map_import_to_package(import_name: str) -> str:
         return found_import_name
 
     if len(supplying_pkgs) == 1:
-        return supplying_pkgs.pop()
+        return list(supplying_pkgs)[0]
     elif found_import_name in supplying_pkgs:
         # heuristic that import scipy comes from scipy
         return found_import_name
