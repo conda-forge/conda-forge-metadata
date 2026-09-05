@@ -24,6 +24,7 @@ SUBDIRS = (
     "linux-64",
     "linux-aarch64",
     "linux-ppc64le",
+    "linux-riscv64",
     "osx-64",
     "osx-arm64",
     "win-64",
