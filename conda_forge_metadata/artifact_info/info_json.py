@@ -10,8 +10,6 @@ from typing import Any
 import requests
 from ruamel import yaml
 
-from conda_forge_metadata.deprecations import deprecated
-from conda_forge_metadata.libcfgraph import get_libcfgraph_artifact_data
 from conda_forge_metadata.types import ArtifactData
 
 VALID_BACKENDS = ("oci", "streamed")
@@ -74,17 +72,7 @@ def get_artifact_info_as_json(
                 elements ending in .pyc or .txt filtered out.
 
     """
-    if backend == "libcfgraph":
-        deprecated.topic(
-            deprecate_in="0.7.0",
-            remove_in="2026.7.1",
-            addendum=(
-                "The 'libcfgraph' backend for get_artifact_info_as_json is deprecated and "
-                "will be removed in a future release. Use 'oci' or 'streamed' instead."
-            ),
-        )
-        return get_libcfgraph_artifact_data(channel, subdir, artifact)
-    elif backend == "oci":
+    if backend == "oci":
         from conda_forge_metadata.oci import get_oci_artifact_data
 
         tar = get_oci_artifact_data(channel, subdir, artifact)
