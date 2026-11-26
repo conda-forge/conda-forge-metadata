@@ -53,7 +53,8 @@ def get_oci_artifact_data(
             "files": a list of files in the recipe from info/files with
                 elements ending in .pyc or .txt filtered out.
 
-        If the artifact is not indexed, it returns None.
+        If the artifact is not indexed or there was an error, it returns None.
+        Enable logging.DEBUG entries for details.
 
     """
     if artifact.endswith(".tar.bz2"):
@@ -69,7 +70,7 @@ def get_oci_artifact_data(
     oci_name = f"{parts[0]}:{parts[1]}-{parts[2]}"
     try:
         tar = repo.get_info(oci_name)
-    except ValueError as exc:
+    except Exception as exc:
         logger.debug("Failed to get info for %s", oci_name, exc_info=exc)
         return None
     else:
